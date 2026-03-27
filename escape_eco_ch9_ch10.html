@@ -273,7 +273,7 @@ body::before{content:'';position:fixed;inset:0;background:
     <input type="text" id="win-name" placeholder="Prénom Nom">
   </div>
   <button class="btn-send" onclick="sendScore()">📧 ENVOYER MON SCORE</button>
-  <div class="send-note">Score envoyé à c.chaudronnier@ejda.fr</div>
+  <div class="send-note">Score envoyé à <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5a397439323b2f3e28353434333f281a3f303e3b743c28">[email&#160;protected]</a></div>
   <br><button class="btn-restart" onclick="restartGame()">Recommencer</button>
 </div>
 
@@ -288,7 +288,7 @@ body::before{content:'';position:fixed;inset:0;background:
     <input type="text" id="lose-name" placeholder="Prénom Nom">
   </div>
   <button class="btn-send" style="border-color:var(--warn);color:var(--warn);" onclick="sendScoreLose()">📧 ENVOYER MON SCORE</button>
-  <div class="send-note">Score envoyé à c.chaudronnier@ejda.fr</div>
+  <div class="send-note">Score envoyé à <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="274409444f465243554849494e425567424d4346094155">[email&#160;protected]</a></div>
   <br><button class="btn-restart" onclick="restartGame()">Recommencer</button>
 </div>
 
@@ -303,7 +303,7 @@ body::before{content:'';position:fixed;inset:0;background:
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════════════════════
 // DONNÉES
 // ═══════════════════════════════════════
@@ -1269,5 +1269,9 @@ function sendScoreLose(){
   window.location.href='mailto:c.chaudronnier@ejda.fr?subject='+subj+'&body='+encodeURIComponent(buildBody(false));
 }
 </script>
+<!-- COPYRIGHT -->
+<div style="text-align:center;padding:24px 16px 32px;font-family:'Share Tech Mono',monospace;font-size:.6rem;color:#2a3d55;letter-spacing:2px;position:relative;z-index:1;">
+  © 2026 Christophe Chaudronnier — Document pédagogique — Terminale STMG — Usage non commercial
+</div>
 </body>
 </html>
