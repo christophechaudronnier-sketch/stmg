@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Game – Les Choix Stratégiques | Management STMG</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#07090f;--surface:#0e1220;--surface2:#141a2e;--border:#1e2840;
+    --accent:#00c8ff;--accent2:#f77f00;--gold:#ffd166;--green:#06d6a0;
+    --red:#ef476f;--text:#dde8f5;--muted:#5a7a9a;
+    --room1:#0077b6;--room2:#5e2d91;--room3:#1b6e4f;--room4:#7d3c00;--boss:#f77f00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,0.03) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+  .screen{display:none;position:relative;z-index:1;}
+  .screen.active{display:flex;flex-direction:column;min-height:100vh;}
+  #intro{align-items:center;justify-content:center;padding:40px 20px;text-align:center;gap:22px;}
+  .intro-badge{background:var(--surface2);border:1px solid var(--border);padding:6px 18px;font-size:11px;letter-spacing:3px;color:var(--accent);text-transform:uppercase;}
+  .intro-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,9vw,86px);line-height:.88;background:linear-gradient(135deg,#00c8ff 0%,#f77f00 55%,#ffd166 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;}
+  .intro-sub{font-family:'Crimson Pro',serif;font-size:21px;color:var(--muted);font-style:italic;}
+  .intro-desc{max-width:620px;font-size:13px;line-height:1.8;color:var(--muted);border-left:3px solid var(--accent);padding-left:16px;text-align:left;}
+  .rooms-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;max-width:720px;width:100%;}
+  .room-preview-card{background:var(--surface);border:1px solid var(--border);padding:14px 10px;text-align:center;font-size:11px;letter-spacing:1px;color:var(--muted);}
+  .room-preview-card .room-icon{font-size:26px;margin-bottom:7px;}
+  .room-preview-card .room-num{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--accent);}
+  .name-section{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:400px;}
+  input[type="text"]{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:14px 18px;font-family:'IBM Plex Mono',monospace;font-size:14px;outline:none;transition:border-color .2s;}
+  input[type="text"]:focus{border-color:var(--accent);}
+  input[type="text"]::placeholder{color:var(--muted);}
+  .btn{background:var(--accent);color:#001a22;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all .2s;width:100%;}
+  .btn:hover{filter:brightness(1.15);transform:translateY(-2px);}
+  .btn:active{transform:translateY(0);}
+  .btn.secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text);}
+  .btn.secondary:hover{border-color:var(--accent);color:var(--accent);filter:none;}
+  .btn.danger{background:var(--red);color:#fff;}
+  .btn.danger:hover{background:#ff2d5a;filter:none;}
+  .btn.gold{background:var(--gold);color:#1a1200;}
+  .btn.green{background:var(--green);color:#002a1e;}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:none;}
+  #game{flex-direction:column;padding:0;}
+  .top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:10;}
+  .top-bar-left{display:flex;align-items:center;gap:20px;}
+  .room-label{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;}
+  .progress-pills{display:flex;gap:5px;align-items:center;flex-wrap:wrap;max-width:260px;}
+  .pill{width:20px;height:5px;background:var(--border);transition:background .3s;}
+  .pill.done{background:var(--green);}
+  .pill.active{background:var(--accent);}
+  .top-bar-right{display:flex;align-items:center;gap:20px;}
+  .lives-display{display:flex;gap:6px;align-items:center;}
+  .heart{font-size:20px;transition:all .3s;}
+  .heart.lost{filter:grayscale(1);opacity:.3;}
+  .score-display{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);}
+  .question-area{flex:1;padding:32px 24px;max-width:840px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:22px;}
+  .room-header{display:flex;flex-direction:column;gap:6px;}
+  .room-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,4.5vw,40px);letter-spacing:2px;line-height:1.1;}
+  .room-header .room-desc{font-size:12px;color:var(--muted);letter-spacing:1px;}
+  .q-counter{font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+  .question-card{background:var(--surface);border:1px solid var(--border);padding:28px;display:flex;flex-direction:column;gap:20px;animation:slideIn .3s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .question-type-badge{font-size:10px;letter-spacing:3px;color:var(--accent2);text-transform:uppercase;}
+  .question-text{font-family:'Crimson Pro',serif;font-size:20px;line-height:1.5;color:var(--text);}
+  .question-context{background:var(--surface2);border-left:3px solid var(--accent);padding:14px 18px;font-size:13px;line-height:1.7;color:var(--muted);font-style:italic;font-family:'Crimson Pro',serif;}
+  .options-grid{display:flex;flex-direction:column;gap:10px;}
+  .option-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:14px 18px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;}
+  .option-btn .opt-letter{width:26px;height:26px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;flex-shrink:0;color:var(--accent);transition:background .2s;}
+  .option-btn:hover{border-color:var(--accent);}
+  .option-btn:hover .opt-letter{background:var(--accent);color:#001a22;}
+  .option-btn.correct{border-color:var(--green);background:rgba(6,214,160,.1);}
+  .option-btn.correct .opt-letter{background:var(--green);color:#fff;}
+  .option-btn.wrong{border-color:var(--red);background:rgba(239,71,111,.1);}
+  .option-btn.wrong .opt-letter{background:var(--red);color:#fff;}
+  .option-btn:disabled{cursor:not-allowed;}
+  .tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .tf-btn{padding:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px;cursor:pointer;transition:all .2s;text-align:center;}
+  .tf-btn.vrai:hover{border-color:var(--green);color:var(--green);}
+  .tf-btn.faux:hover{border-color:var(--red);color:var(--red);}
+  .tf-btn.correct{border-color:var(--green);background:rgba(6,214,160,.1);color:var(--green);}
+  .tf-btn.wrong{border-color:var(--red);background:rgba(239,71,111,.1);color:var(--red);}
+  .tf-btn:disabled{cursor:not-allowed;}
+  .fill-area{display:flex;flex-direction:column;gap:10px;}
+  .fill-area input{font-size:15px;padding:14px 18px;}
+  .feedback-banner{padding:16px 20px;font-size:16px;line-height:1.6;display:none;animation:slideIn .3s ease;font-family:'Crimson Pro',serif;}
+  .feedback-banner.correct{background:rgba(6,214,160,.1);border:1px solid var(--green);color:var(--green);display:block;}
+  .feedback-banner.wrong{background:rgba(239,71,111,.1);border:1px solid var(--red);color:var(--red);display:block;}
+  .question-actions{display:flex;gap:12px;flex-wrap:wrap;}
+  .question-actions .btn{width:auto;min-width:140px;}
+  .room-result{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;gap:20px;}
+  .result-icon{font-size:72px;}
+  .result-title{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:3px;}
+  .result-title.success{color:var(--green);}
+  .result-title.failed{color:var(--red);}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:480px;width:100%;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);padding:16px;text-align:center;}
+  .stat-val{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--gold);}
+  .stat-label{font-size:10px;letter-spacing:2px;color:var(--muted);}
+  .boss-intro{background:linear-gradient(135deg,rgba(247,127,0,.1),rgba(0,200,255,.08));border:1px solid rgba(247,127,0,.35);padding:20px 24px;display:flex;align-items:flex-start;gap:16px;margin-bottom:4px;}
+  .boss-intro .boss-icon{font-size:48px;flex-shrink:0;}
+  .boss-intro p{font-size:13px;line-height:1.75;color:var(--muted);}
+  #final{align-items:center;justify-content:center;padding:40px 24px;text-align:center;gap:24px;}
+  .final-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,10vw,100px);line-height:.85;background:linear-gradient(135deg,#00c8ff 0%,#f77f00 50%,#ffd166 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .final-score{font-family:'Bebas Neue',sans-serif;font-size:76px;color:var(--gold);line-height:1;}
+  .score-breakdown{background:var(--surface);border:1px solid var(--border);padding:24px;max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px;}
+  .score-row{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);}
+  .score-row:last-child{border-bottom:none;}
+  .score-row .val{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:18px;}
+  .score-row .val.neg{color:var(--red);}
+  .email-form{display:flex;flex-direction:column;gap:12px;max-width:460px;width:100%;}
+  .email-form label{font-size:11px;letter-spacing:2px;color:var(--muted);text-align:left;}
+  .send-status{font-size:12px;padding:10px 16px;text-align:center;display:none;}
+  .send-status.ok{background:rgba(6,214,160,.12);border:1px solid var(--green);color:var(--green);display:block;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--border);padding:32px;max-width:440px;width:100%;text-align:center;display:flex;flex-direction:column;gap:16px;animation:slideIn .3s ease;}
+  .modal h3{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;}
+  .modal p{font-size:13px;color:var(--muted);line-height:1.7;}
+  .modal-actions{display:flex;gap:10px;}
+  .modal-actions .btn{flex:1;}
+  .life-lost-overlay{position:fixed;inset:0;background:rgba(239,71,111,.15);pointer-events:none;z-index:50;opacity:0;transition:opacity .1s;}
+  .life-lost-overlay.flash{opacity:1;transition:opacity .05s;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.12);}}
+  .heart.pulse{animation:pulse .4s ease;}
+  @media(max-width:600px){.tf-grid{grid-template-columns:1fr;}.result-stats{grid-template-columns:1fr 1fr;}.progress-pills{max-width:180px;}}
+</style>
+</head>
+<body>
+<div class="life-lost-overlay" id="lifeLostOverlay"></div>
+<div class="screen active" id="intro">
+  <div class="intro-badge">Première STMG · Management · Thème 3</div>
+  <div class="intro-title">LES CHOIX<br>STRATÉGIQUES</div>
+  <div class="intro-sub">Escape Game — Pilotez la stratégie, sauvez l'organisation !</div>
+  <div class="intro-desc">
+    4 salles de connaissances + 1 salle Boss. Niveaux stratégiques, modalités de développement,
+    organisations publiques, société civile.<br>
+    Vous disposez de <strong style="color:var(--gold)">3 vies par salle</strong>.
+    En cas de game over, rachetez <strong>1 vie</strong> pour &minus;50 pts.
+  </div>
+  <div class="rooms-preview">
+    <div class="room-preview-card"><div class="room-icon">🗺️</div><div class="room-num">SALLE 1</div><div>Ch. 12 — Niveaux des choix stratégiques</div></div>
+    <div class="room-preview-card"><div class="room-icon">🚀</div><div class="room-num">SALLE 2</div><div>Ch. 13 — Modalités de développement</div></div>
+    <div class="room-preview-card"><div class="room-icon">🏛️</div><div class="room-num">SALLE 3</div><div>Ch. 14 — Organisations publiques</div></div>
+    <div class="room-preview-card"><div class="room-icon">🤝</div><div class="room-num">SALLE 4</div><div>Ch. 15 — Société civile</div></div>
+    <div class="room-preview-card" style="border-color:rgba(247,127,0,.45)"><div class="room-icon">💀</div><div class="room-num" style="color:var(--boss)">BOSS</div><div>Cas pratique intégral</div></div>
+  </div>
+  <div class="name-section">
+    <input type="text" id="playerName" placeholder="Votre prénom et nom…" maxlength="60"/>
+    <button class="btn" onclick="startGame()">▶ COMMENCER L'ESCAPE</button>
+  </div>
+  <div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:4px">© 2026 Christophe Chaudronnier — Tous droits réservés</div>
+</div>
+<div class="screen" id="game">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="room-label" id="roomLabel">SALLE 1</div>
+      <div class="progress-pills" id="progressPills"></div>
+    </div>
+    <div class="top-bar-right">
+      <div class="lives-display" id="livesDisplay"></div>
+      <div class="score-display">⭐ <span id="scoreDisplay">0</span></div>
+    </div>
+  </div>
+  <div class="question-area" id="questionArea"></div>
+</div>
+<div class="screen" id="final">
+  <div class="final-title">ESCAPE RÉUSSI !</div>
+  <div class="final-score" id="finalScore">0 pts</div>
+  <div class="score-breakdown" id="scoreBreakdown"></div>
+  <div class="email-form">
+    <label>Envoyer vos résultats à votre professeur</label>
+    <input type="text" id="finalName" placeholder="Votre nom complet"/>
+    <button class="btn gold" onclick="sendScore()">📧 ENVOYER MES RÉSULTATS</button>
+    <div class="send-status" id="sendStatus"></div>
+  </div>
+  <button class="btn secondary" onclick="location.reload()">↺ Rejouer</button>
+  <div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-top:4px">© 2026 Christophe Chaudronnier — Tous droits réservés</div>
+</div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle">💔 PLUS DE VIES</h3>
+    <p id="modalBody">Vous n'avez plus de vies dans cette salle.</p>
+    <div class="modal-actions">
+      <button class="btn gold" onclick="buyLives()">💛 Racheter 1 vie (&minus;50 pts)</button>
+      <button class="btn danger" onclick="gameOver()">✖ Abandonner</button>
+    </div>
+  </div>
+</div>
+<script>
+const ROOMS = [
+  {
+    id:1, title:"NIVEAUX DES CHOIX STRATÉGIQUES", icon:"🗺️", color:"var(--room1)",
+    desc:"Ch. 12 — À quel niveau s'opèrent les choix stratégiques des entreprises ?",
+    questions:[
+      {type:"mcq",question:"Qu'est-ce qu'un Domaine d'Activité Stratégique (DAS) ?",options:["Un département de l'entreprise chargé de la stratégie","Un sous-ensemble d'activités homogènes ayant les mêmes facteurs clés de succès","Le marché géographique principal de l'entreprise","La direction générale qui fixe les orientations à long terme"],answer:1,points:30,feedback:"✅ Un DAS (ou Strategic Business Unit) est un ensemble d'activités homogènes partageant les mêmes ressources, concurrents et facteurs clés de succès. L'entreprise peut segmenter son portefeuille d'activités en plusieurs DAS indépendants."},
+      {type:"mcq",question:"La stratégie 'corporate' (stratégie de groupe) consiste à :",options:["Choisir comment se battre sur un marché précis","Décider quels DAS conserver, développer ou abandonner au niveau du groupe","Organiser les fonctions internes de l'entreprise","Fixer les objectifs commerciaux annuels"],answer:1,points:30,feedback:"✅ La stratégie corporate porte sur la gestion du portefeuille de DAS : dans quels domaines investir, se maintenir ou se retirer ? Elle répond à 'où concourir ?' tandis que la stratégie business répond à 'comment concourir ?'"},
+      {type:"true_false",question:"La matrice BCG classe les DAS selon leur part de marché relative et le taux de croissance du marché.",answer:true,points:20,feedback:"✅ VRAI. La matrice BCG croise la part de marché relative (force concurrentielle) et le taux de croissance du marché (attrait) pour classer les DAS en : Vaches à lait, Stars, Dilemmes et Poids morts."},
+      {type:"mcq",question:"Dans la matrice BCG, une 'Vache à lait' se caractérise par :",options:["Une forte croissance et une forte part de marché","Une faible croissance et une faible part de marché","Une faible croissance du marché mais une forte part de marché relative","Une forte croissance et une faible part de marché"],answer:2,points:35,feedback:"✅ Vache à lait = marché en faible croissance (secteur mature) + forte part de marché relative. Ce DAS génère beaucoup de cash avec peu d'investissements nécessaires. Il finance les autres DAS du portefeuille."},
+      {type:"mcq",question:"Le diagnostic SWOT analyse :",options:["Les seuls facteurs internes à l'entreprise","Les forces/faiblesses internes et les opportunités/menaces de l'environnement externe","Uniquement la concurrence et les marchés potentiels","Les ressources humaines et financières uniquement"],answer:1,points:25,feedback:"✅ SWOT = Strengths (Forces), Weaknesses (Faiblesses), Opportunities (Opportunités), Threats (Menaces). Forces/faiblesses sont internes ; opportunités/menaces sont externes (marché, concurrence, macro-environnement)."},
+      {type:"true_false",question:"La stratégie de différenciation consiste à proposer une offre perçue comme unique, justifiant un prix plus élevé.",answer:true,points:20,feedback:"✅ VRAI. Selon Porter, la différenciation crée une valeur perçue supérieure (qualité, marque, innovation, service…) permettant un prix premium. C'est l'une des trois stratégies génériques avec la domination par les coûts et la focalisation."},
+      {type:"fill_blank",question:"La stratégie qui consiste à concentrer ses efforts sur un segment de marché précis est appelée stratégie de _____________ ou de focalisation.",answer:["concentration","niche","focalisation"],points:25,feedback:"✅ La focalisation (Porter) consiste à se spécialiser sur un segment étroit et à y chercher la domination par les coûts ou la différenciation. Elle cible une niche spécifique plutôt que l'ensemble du marché."},
+      {type:"mcq",question:"Les 'Facteurs Clés de Succès' (FCS) sont :",options:["Les résultats financiers que l'entreprise doit atteindre","Les éléments sur lesquels une entreprise doit être performante pour réussir dans son secteur","Les fournisseurs indispensables à l'activité","Les indicateurs de mesure de la performance interne"],answer:1,points:25,feedback:"✅ Les FCS sont les compétences et ressources à maîtriser pour être compétitif dans un secteur. Ils varient : le prix dans la grande distribution, l'innovation dans le high-tech, la marque dans le luxe…"},
+      {type:"mcq",question:"Dans la matrice BCG, un DAS 'Dilemme' (point d'interrogation) présente :",options:["Forte PDM et faible croissance","Faible PDM et faible croissance","Faible PDM et forte croissance du marché","Forte PDM et forte croissance"],answer:2,points:35,feedback:"✅ Dilemme = marché en forte croissance MAIS faible part de marché relative. Ce DAS nécessite des investissements pour devenir une Star. Sans investissement, il risque de tomber en Poids mort."},
+      {type:"true_false",question:"La stratégie business (ou stratégie concurrentielle) se décide au niveau de chaque DAS.",answer:true,points:20,feedback:"✅ VRAI. La stratégie business se décline DAS par DAS : comment l'entreprise va-t-elle obtenir un avantage concurrentiel durable sur ce marché précis ? Elle s'inscrit dans le cadre défini par la stratégie corporate."}
+    ]
+  },
+  {
+    id:2, title:"MODALITÉS DE DÉVELOPPEMENT", icon:"🚀", color:"var(--room2)",
+    desc:"Ch. 13 — Quelles sont les modalités de développement des entreprises ?",
+    questions:[
+      {type:"mcq",question:"La croissance interne (ou organique) consiste à :",options:["Acquérir une entreprise concurrente","Développer l'entreprise par ses propres ressources et investissements","Fusionner avec un partenaire stratégique","Externaliser des activités non essentielles"],answer:1,points:25,feedback:"✅ La croissance interne repose sur les ressources propres de l'entreprise : elle crée elle-même ses nouvelles capacités (nouveaux sites, R&D, recrutements…). Plus lente mais préserve l'indépendance et la culture d'entreprise."},
+      {type:"mcq",question:"Une fusion-acquisition est une forme de :",options:["Croissance interne","Croissance externe","Croissance conjointe","Impartition"],answer:1,points:25,feedback:"✅ La fusion-acquisition est la modalité emblématique de la croissance externe : une entreprise rachète ou fusionne avec une autre structure déjà existante. Rapide mais coûteux et risqué (choc culturel, intégration difficile)."},
+      {type:"true_false",question:"Une alliance stratégique est un accord entre entreprises concurrentes qui coopèrent sur un projet commun tout en restant indépendantes.",answer:true,points:20,feedback:"✅ VRAI. L'alliance stratégique (coopétition) réunit des concurrents qui mutualisent ressources et compétences sur un projet spécifique. Les partenaires conservent leur autonomie juridique et continuent à se concurrencer sur les autres marchés."},
+      {type:"mcq",question:"L'impartition désigne :",options:["La prise de participation dans une entreprise partenaire","Le fait de confier à un partenaire externe une activité que l'on réalisait soi-même","La création d'une filiale commune avec un concurrent","La stratégie d'acquisition d'entreprises étrangères"],answer:1,points:30,feedback:"✅ L'impartition (externalisation / outsourcing) consiste à confier à un prestataire extérieur une activité réalisée en interne. Objectif : se recentrer sur le cœur de métier, réduire les coûts. Risques : dépendance, perte de savoir-faire."},
+      {type:"mcq",question:"La franchise est un exemple de :",options:["Croissance interne","Fusion-acquisition","Croissance conjointe (partenariat)","Stratégie de recentrage"],answer:2,points:30,feedback:"✅ La franchise est une croissance conjointe : le franchiseur apporte marque, savoir-faire et concept ; le franchisé apporte les capitaux et gère son point de vente. C'est une coopération verticale entre entreprises indépendantes."},
+      {type:"fill_blank",question:"Lorsqu'une entreprise rachète un fournisseur ou un distributeur pour contrôler sa chaîne de valeur, on parle d'intégration _____________.",answer:["verticale","amont","aval"],points:30,feedback:"✅ L'intégration verticale peut être vers l'amont (rachat d'un fournisseur) ou vers l'aval (rachat d'un distributeur). Elle permet de contrôler la chaîne de valeur et de capter plus de valeur ajoutée."},
+      {type:"true_false",question:"La croissance externe est généralement plus rapide que la croissance interne pour gagner des parts de marché.",answer:true,points:20,feedback:"✅ VRAI. C'est l'avantage clé de la croissance externe : acquérir instantanément des parts de marché, des technologies ou des marques. En contrepartie, elle est coûteuse et l'intégration post-acquisition est souvent complexe."},
+      {type:"mcq",question:"Une joint-venture est :",options:["Un accord de licence technologique","La création d'une filiale commune par deux entreprises partenaires","L'acquisition d'une entreprise par une autre","Un contrat de sous-traitance à long terme"],answer:1,points:35,feedback:"✅ Une joint-venture (coentreprise) est une structure juridique nouvelle créée conjointement par deux partenaires qui apportent ressources, partagent risques et bénéfices. Forme classique de croissance conjointe pour s'internationaliser."},
+      {type:"mcq",question:"Quel est le principal risque de l'impartition (externalisation) ?",options:["Une augmentation des coûts de production","La perte de contrôle et une dépendance accrue vis-à-vis du prestataire","Un ralentissement de la croissance","La dilution du capital"],answer:1,points:30,feedback:"✅ Le risque majeur est la dépendance : l'entreprise peut perdre son savoir-faire, devenir tributaire d'un prestataire unique, et avoir du mal à réinternaliser l'activité si le partenariat échoue."},
+      {type:"mcq",question:"La stratégie de diversification consiste à :",options:["Renforcer sa position sur son marché actuel","Se développer sur de nouveaux marchés et/ou avec de nouveaux produits","Réduire le nombre de DAS pour se recentrer","Baisser ses prix pour gagner des parts de marché"],answer:1,points:25,feedback:"✅ La diversification (Ansoff) consiste à s'aventurer sur de nouveaux marchés avec de nouveaux produits. Elle dilue le risque global mais demande des ressources importantes. À distinguer de la spécialisation."}
+    ]
+  },
+  {
+    id:3, title:"STRATÉGIES DES ORGANISATIONS PUBLIQUES", icon:"🏛️", color:"var(--room3)",
+    desc:"Ch. 14 — Les stratégies des organisations publiques : quelles spécificités ?",
+    questions:[
+      {type:"mcq",question:"Quelle est la finalité principale d'une organisation publique ?",options:["Maximiser le profit pour ses actionnaires","Assurer des missions d'intérêt général au service de la collectivité","Conquérir des parts de marché à l'international","Minimiser ses coûts de fonctionnement"],answer:1,points:25,feedback:"✅ Les organisations publiques (État, collectivités, hôpitaux…) ont pour finalité l'intérêt général : elles fournissent des services à la collectivité, souvent non marchands ou à prix administré, indépendamment de la rentabilité."},
+      {type:"true_false",question:"Les organisations publiques n'ont pas besoin de stratégie car leurs missions sont fixées par la loi.",answer:false,points:20,feedback:"✅ FAUX. Même si leurs missions sont encadrées par la loi, les organisations publiques élaborent des stratégies : allocation budgétaire, choix de priorités, partenariats public-privé, modernisation des services…"},
+      {type:"mcq",question:"Les ressources financières des organisations publiques proviennent principalement :",options:["De la vente de produits sur les marchés concurrentiels","Des dotations budgétaires, impôts, taxes et subventions publiques","Des dividendes versés par leurs filiales","Des emprunts sur les marchés financiers uniquement"],answer:1,points:25,feedback:"✅ Les organisations publiques sont essentiellement financées par des fonds publics : dotations de l'État, fiscalité locale, subventions, cotisations obligatoires. Cette dépendance budgétaire est une contrainte stratégique majeure."},
+      {type:"mcq",question:"Le service public repose sur les lois de Rolland qui imposent :",options:["La recherche systématique de la rentabilité","La continuité, l'égalité d'accès et l'adaptabilité du service rendu","La liberté de choisir ses bénéficiaires selon leur solvabilité","L'indépendance totale vis-à-vis des pouvoirs publics"],answer:1,points:30,feedback:"✅ Les lois de Rolland définissent le service public : continuité (le service ne peut s'interrompre), égalité (accès identique pour tous) et adaptabilité (évolue avec les besoins de la collectivité). Ces principes contraignent fortement les choix stratégiques."},
+      {type:"fill_blank",question:"Une organisation publique qui confie la gestion d'un service public à une entreprise privée tout en conservant le contrôle a recours à une _____________ de service public.",answer:["delegation","délégation","dsp"],points:30,feedback:"✅ La délégation de service public (DSP) permet à une collectivité de confier la gestion d'un service (eau, transports…) à un opérateur privé sous son contrôle. Forme classique de partenariat public-privé en France."},
+      {type:"true_false",question:"La Nouvelle Gestion Publique (NGP) vise à introduire des méthodes de management inspirées du secteur privé dans les organisations publiques.",answer:true,points:20,feedback:"✅ VRAI. La NGP (New Public Management) cherche à améliorer l'efficience publique en important des outils du privé : indicateurs de performance, contractualisation, logique de résultats, mise en concurrence…"},
+      {type:"mcq",question:"Un EPIC (Établissement Public à caractère Industriel et Commercial) se distingue d'un service public administratif car :",options:["Il est entièrement privatisé","Il exerce une activité économique et peut être en concurrence avec des opérateurs privés","Il n'a aucune mission d'intérêt général","Il est financé uniquement par ses usagers"],answer:1,points:35,feedback:"✅ Un EPIC exerce une activité commerciale (transport, énergie…) et peut se retrouver en concurrence avec des acteurs privés, sous l'effet du droit européen. Il combine missions de service public et logique économique."},
+      {type:"mcq",question:"Quelle est la principale contrainte stratégique spécifique aux organisations publiques ?",options:["L'impossibilité de recruter du personnel qualifié","La contrainte budgétaire et la tutelle des pouvoirs publics qui limitent leur autonomie","L'interdiction de nouer des partenariats","L'obligation de dégager des bénéfices chaque année"],answer:1,points:30,feedback:"✅ Les organisations publiques subissent une double contrainte : la tutelle de l'État ou des collectivités (contrôle politique) et la contrainte budgétaire (ressources limitées par les dotations). Leur liberté stratégique est donc réduite."},
+      {type:"true_false",question:"L'usager d'un service public peut être refusé si sa demande n'est pas jugée rentable par l'organisation.",answer:false,points:20,feedback:"✅ FAUX. Le principe d'égalité interdit toute discrimination dans l'accès au service public. L'organisation ne peut pas choisir ses bénéficiaires en fonction de leur rentabilité potentielle."},
+      {type:"mcq",question:"La stratégie de 'recentrage sur les missions essentielles' pour une organisation publique consiste à :",options:["Augmenter le nombre de services proposés","Se séparer d'activités périphériques pour concentrer les ressources sur les missions de service public prioritaires","Privatiser l'ensemble des services non rentables","Fusionner avec d'autres organisations publiques"],answer:1,points:30,feedback:"✅ Face aux contraintes budgétaires, de nombreuses organisations publiques adoptent un recentrage : elles délèguent ou abandonnent les activités secondaires pour concentrer les ressources rares sur leurs missions fondamentales."}
+    ]
+  },
+  {
+    id:4, title:"ORGANISATIONS DE LA SOCIÉTÉ CIVILE", icon:"🤝", color:"var(--room4)",
+    desc:"Ch. 15 — Les organisations de la société civile peuvent-elles se passer de stratégie ?",
+    questions:[
+      {type:"mcq",question:"Quelle est la caractéristique fondamentale d'une association loi 1901 ?",options:["Elle ne peut pas employer de salariés","Elle ne peut pas distribuer de bénéfices à ses membres","Elle ne peut pas percevoir de subventions publiques","Elle n'a pas besoin d'un budget prévisionnel"],answer:1,points:25,feedback:"✅ Le principe fondamental de la loi 1901 est le but non lucratif : l'association ne peut pas distribuer de bénéfices à ses membres. Elle peut dégager des excédents, réinvestis dans son projet associatif."},
+      {type:"true_false",question:"Les organisations de la société civile (associations, ONG, fondations) n'ont aucun besoin de stratégie car elles ne visent pas le profit.",answer:false,points:20,feedback:"✅ FAUX. La stratégie est indispensable pour toute organisation. Les OSC doivent définir leurs objectifs, allouer leurs ressources rares (bénévoles, dons, subventions), choisir leurs bénéficiaires et s'adapter à leur environnement."},
+      {type:"mcq",question:"Les ressources des organisations de la société civile proviennent principalement de :",options:["La vente de produits sur les marchés uniquement","Les cotisations des membres, les dons, les subventions et les prestations de services","Les dividendes versés par leurs filiales commerciales","Uniquement des subventions de l'État"],answer:1,points:25,feedback:"✅ Le financement des OSC repose sur un mix : cotisations des adhérents, dons et legs, subventions publiques, mécénat d'entreprises, vente de prestations. Cette diversification des ressources est elle-même une stratégie de résilience."},
+      {type:"mcq",question:"La 'mission' d'une organisation de la société civile joue un rôle équivalent à :",options:["La stratégie de prix d'une entreprise","L'objet social d'une entreprise : c'est la raison d'être qui guide toutes les décisions stratégiques","Le plan de communication externe","Le budget annuel de fonctionnement"],answer:1,points:30,feedback:"✅ La mission (ou projet associatif) est le fondement de toute stratégie d'une OSC : elle définit pourquoi l'organisation existe, pour qui et pour quoi. Toutes les décisions stratégiques doivent être cohérentes avec cette mission."},
+      {type:"fill_blank",question:"Les organisations sans but lucratif (associations, fondations, mutuelles) forment ce que l'on appelle le secteur _____________ ou économie sociale et solidaire.",answer:["associatif","non lucratif","tiers","ess","social"],points:25,feedback:"✅ Le secteur associatif (tiers secteur / ESS) regroupe les organisations qui ne relèvent ni du marché ni de l'État : associations, fondations, mutuelles, coopératives. Il joue un rôle économique et social considérable."},
+      {type:"true_false",question:"Une ONG comme Médecins Sans Frontières élabore des stratégies de collecte de fonds, de communication et d'intervention qui s'apparentent à de véritables stratégies d'organisation.",answer:true,points:20,feedback:"✅ VRAI. Les grandes OSC ont des stratégies sophistiquées : marketing des dons, positionnement de marque, stratégie d'intervention géographique, gestion des bénévoles… Elles font face à une vraie concurrence pour les ressources."},
+      {type:"mcq",question:"La principale ressource humaine spécifique aux associations est :",options:["Les cadres dirigeants recrutés à prix d'or","Les bénévoles, qui donnent de leur temps sans rémunération","Les stagiaires en alternance","Les consultants extérieurs"],answer:1,points:25,feedback:"✅ Le bénévolat est une ressource unique au secteur associatif. La gestion des bénévoles (recrutement, fidélisation, motivation) constitue un enjeu stratégique majeur : on ne manage pas un bénévole comme un salarié."},
+      {type:"mcq",question:"Lorsqu'une association sportive cherche à accroître ses adhérents, noue des partenariats et diversifie ses activités, elle adopte une démarche :",options:["Purement administrative, sans caractère stratégique","Stratégique : elle analyse son environnement et alloue ses ressources pour atteindre ses objectifs","Illégale car contraire à la loi 1901","Typique d'une entreprise, incompatible avec le statut associatif"],answer:1,points:30,feedback:"✅ Cette association déploie bien une stratégie ! La démarche stratégique n'est pas réservée aux entreprises : toute organisation qui fixe des objectifs, analyse son environnement et choisit les moyens d'y parvenir fait de la stratégie."},
+      {type:"true_false",question:"Une fondation d'entreprise est créée par une société commerciale pour mener des actions d'intérêt général distinctes de son activité commerciale.",answer:true,points:20,feedback:"✅ VRAI. La fondation d'entreprise est un outil de mécénat : une entreprise y consacre des ressources pour financer des causes d'intérêt général (culture, éducation, environnement…). Elle est juridiquement distincte de l'entreprise fondatrice."},
+      {type:"mcq",question:"La concurrence entre associations pour obtenir des subventions et des dons illustre :",options:["Le fait que les OSC fonctionnent comme des entreprises commerciales","L'existence d'un environnement concurrentiel même dans le secteur non lucratif, nécessitant une stratégie","Un comportement contraire à l'éthique associative","L'absence de besoin stratégique dans ce secteur"],answer:1,points:30,feedback:"✅ Les OSC évoluent dans un environnement compétitif pour les ressources rares : dons, subventions, bénévoles, visibilité. Cette concurrence oblige les associations à se différencier, soigner leur image, prouver leur efficacité — bref, à avoir une stratégie."}
+    ]
+  },
+  {
+    id:5, title:"SALLE BOSS : LE GROUPE NEXUS", icon:"💀", color:"var(--boss)", isBoss:true,
+    desc:"Cas pratique intégral",
+    bossContext:"Le GROUPE NEXUS est un conglomérat français diversifié. Il opère dans trois DAS : (1) NEXUS Énergie — leader national dans les énergies renouvelables (forte PDM, marché en forte croissance) ; (2) NEXUS Presse — éditeur de magazines (forte PDM, marché en déclin) ; (3) NEXUS Digital — start-up en réalité augmentée (faible PDM, marché en forte croissance). Il gère aussi NEXUS Solidaire, une fondation caritative, et détient 30% d'une régie de transport urbain publique. La direction envisage : (a) racheter un concurrent dans l'énergie ; (b) externaliser l'impression des magazines ; (c) créer une filiale commune avec un groupe allemand dans le digital.",
+    questions:[
+      {type:"mcq",question:"Selon la matrice BCG, NEXUS Énergie (forte PDM, forte croissance du marché) est :",options:["Une Vache à lait","Une Star","Un Dilemme","Un Poids mort"],answer:1,points:40,feedback:"✅ NEXUS Énergie est une Star : forte part de marché + marché en forte croissance. Les Stars sont les DAS les plus prometteurs ; ils nécessitent des investissements pour maintenir la position mais génèrent une forte croissance. Vocation à devenir Vaches à lait quand le marché mature."},
+      {type:"mcq",question:"NEXUS Presse (forte PDM, marché en déclin) correspond à :",options:["Une Star","Un Dilemme","Une Vache à lait","Un Poids mort"],answer:2,points:40,feedback:"✅ NEXUS Presse est une Vache à lait : forte PDM sur un marché en faible croissance. Ce DAS génère des liquidités avec peu d'investissements nécessaires. Ces cash flows peuvent financer les autres DAS du portefeuille."},
+      {type:"mcq",question:"NEXUS Digital (faible PDM, marché en forte croissance) est un :",options:["Poids mort","Vache à lait","Star","Dilemme"],answer:3,points:40,feedback:"✅ NEXUS Digital est un Dilemme (point d'interrogation) : marché porteur mais position faible. La logique BCG recommande d'investir massivement pour en faire une Star, ou de l'abandonner. La joint-venture avec le groupe allemand s'inscrit dans cette logique d'investissement."},
+      {type:"mcq",question:"Le rachat d'un concurrent dans l'énergie renouvelable est une modalité de développement de type :",options:["Croissance interne","Croissance externe (fusion-acquisition)","Croissance conjointe (alliance)","Impartition"],answer:1,points:40,feedback:"✅ Le rachat d'un concurrent est une croissance externe par acquisition. NEXUS acquiert une entité existante pour renforcer sa position sur le DAS Énergie. Rapide mais risqué : prix d'achat élevé, intégration culturelle complexe."},
+      {type:"mcq",question:"Externaliser l'impression des magazines est une décision de :",options:["Intégration verticale amont","Diversification","Impartition (externalisation)","Croissance conjointe"],answer:2,points:40,feedback:"✅ C'est une décision d'impartition : NEXUS confie à un spécialiste une activité réalisée en interne pour se recentrer sur son cœur de métier (le contenu éditorial). Risque : dépendance au prestataire, perte de contrôle sur qualité et délais."},
+      {type:"mcq",question:"La création d'une filiale commune avec le groupe allemand dans le digital est :",options:["Une croissance interne","Une fusion-acquisition","Une joint-venture (croissance conjointe)","Une délégation de service public"],answer:2,points:40,feedback:"✅ Une filiale commune avec un partenaire étranger est une joint-venture : les deux partenaires apportent ressources et compétences, partagent risques et bénéfices. Forme classique pour s'internationaliser en limitant les risques."},
+      {type:"mcq",question:"La régie de transport urbain (organisation publique) a pour contrainte stratégique principale :",options:["De maximiser les dividendes versés à NEXUS","D'assurer continuité, égalité et adaptabilité du service dans le cadre d'une tutelle publique et d'une contrainte budgétaire","De conquérir de nouveaux marchés à l'international","De distribuer ses bénéfices à ses usagers"],answer:1,points:45,feedback:"✅ La régie est soumise aux contraintes du service public (continuité, égalité, adaptabilité) et à la tutelle de la collectivité. Sa stratégie est encadrée par des objectifs de service public et un budget contrôlé — ce qui la distingue fondamentalement des DAS commerciaux de NEXUS."},
+      {type:"mcq",question:"NEXUS Solidaire (fondation caritative) a besoin d'une stratégie pour :",options:["Maximiser les profits redistribués aux actionnaires","Allouer ses ressources limitées (dons, subventions) de manière cohérente avec sa mission d'intérêt général","Entrer en concurrence directe avec les autres DAS du groupe","Se transformer en entreprise commerciale rentable"],answer:1,points:45,feedback:"✅ Même sans but lucratif, NEXUS Solidaire doit définir des priorités, gérer ses ressources (dons, bénévoles, subventions), choisir ses bénéficiaires et mesurer son impact social. Toute organisation a besoin de stratégie pour atteindre ses objectifs, lucratifs ou non."}
+    ]
+  }
+];
+let state={playerName:'',currentRoom:0,currentQ:0,lives:3,score:0,buyCount:0,roomScores:[],roomCorrect:[],roomErrors:[],answered:false};
+
+function startGame(){
+  const name=document.getElementById('playerName').value.trim();
+  if(!name){document.getElementById('playerName').focus();return;}
+  state.playerName=name;show('game');loadRoom(0);
+}
+function loadRoom(idx){
+  state.currentRoom=idx;state.currentQ=0;state.lives=3;state.answered=false;
+  state.roomScores.push(0);state.roomCorrect.push(0);state.roomErrors.push(0);
+  updateTopBar();renderQuestion();
+}
+function updateTopBar(){
+  const room=ROOMS[state.currentRoom];
+  document.getElementById('roomLabel').textContent=room.isBoss?'💀 BOSS':'SALLE '+room.id;
+  document.getElementById('scoreDisplay').textContent=state.score;
+  const pills=document.getElementById('progressPills');
+  const total=room.questions.length;
+  pills.innerHTML=Array.from({length:total},(_,i)=>`<div class="pill ${i<state.currentQ?'done':i===state.currentQ?'active':''}"></div>`).join('');
+  const ld=document.getElementById('livesDisplay');
+  ld.innerHTML=Array.from({length:3},(_,i)=>`<span class="heart ${i>=state.lives?'lost':''}" id="heart${i}">♥</span>`).join('');
+}
+function renderQuestion(){
+  const room=ROOMS[state.currentRoom];const q=room.questions[state.currentQ];
+  state.answered=false;updateTopBar();
+  const area=document.getElementById('questionArea');let html='';
+  if(state.currentQ===0){
+    html+='<div class="room-header">';
+    if(room.isBoss){html+=`<div class="boss-intro"><div class="boss-icon">${room.icon}</div><div><div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--boss);letter-spacing:2px;margin-bottom:8px">${room.title}</div><p>${room.bossContext}</p></div></div>`;}
+    else{html+=`<h2 style="color:${room.color}">${room.icon} ${room.title}</h2><div class="room-desc">${room.desc}</div>`;}
+    html+='</div>';
+  }
+  html+=`<div class="q-counter">Question ${state.currentQ+1} / ${room.questions.length} · ${q.points} points</div>`;
+  html+='<div class="question-card">';
+  html+=`<div class="question-type-badge">${typeLabel(q.type)}</div>`;
+  if(q.context)html+=`<div class="question-context">${q.context}</div>`;
+  html+=`<div class="question-text">${q.question}</div>`;
+  if(q.type==='mcq'){
+    html+='<div class="options-grid">';
+    q.options.forEach((opt,i)=>{html+=`<button class="option-btn" id="opt${i}" onclick="answerMCQ(${i})"><span class="opt-letter">${'ABCD'[i]}</span>${opt}</button>`;});
+    html+='</div>';
+  } else if(q.type==='true_false'){
+    html+='<div class="tf-grid"><button class="tf-btn vrai" id="tfTrue" onclick="answerTF(true)">✓ VRAI</button><button class="tf-btn faux" id="tfFalse" onclick="answerTF(false)">✗ FAUX</button></div>';
+  } else if(q.type==='fill_blank'){
+    html+='<div class="fill-area"><input type="text" id="fillInput" placeholder="Votre réponse…" onkeydown="if(event.key===&apos;Enter&apos;)answerFill()"/><button class="btn" onclick="answerFill()">VALIDER MA RÉPONSE</button></div>';
+  }
+  html+='<div class="feedback-banner" id="feedbackBanner"></div><div class="question-actions" id="questionActions"></div></div>';
+  area.innerHTML=html;window.scrollTo(0,0);
+  if(q.type==='fill_blank')setTimeout(()=>document.getElementById('fillInput')?.focus(),100);
+}
+function typeLabel(t){return{mcq:'● Choix unique',true_false:'● Vrai ou Faux',fill_blank:'● Compléter la phrase'}[t]||'';}
+function answerMCQ(chosen){
+  if(state.answered)return;
+  const q=ROOMS[state.currentRoom].questions[state.currentQ];
+  disableButtons('.option-btn');
+  document.getElementById('opt'+q.answer).classList.add('correct');
+  if(chosen===q.answer){awardPoints(q.points,true);}
+  else{document.getElementById('opt'+chosen).classList.add('wrong');loseLife();awardPoints(0,false);}
+  showFeedback(q.feedback,chosen===q.answer);
+}
+function answerTF(chosen){
+  if(state.answered)return;
+  const q=ROOMS[state.currentRoom].questions[state.currentQ];
+  disableButtons('.tf-btn');const correct=chosen===q.answer;
+  if(chosen===true)document.getElementById('tfTrue').classList.add(correct?'correct':'wrong');
+  if(chosen===false)document.getElementById('tfFalse').classList.add(correct?'correct':'wrong');
+  if(!correct){const el=q.answer?document.getElementById('tfTrue'):document.getElementById('tfFalse');if(el)el.classList.add('correct');loseLife();}
+  awardPoints(correct?q.points:0,correct);showFeedback(q.feedback,correct);
+}
+function answerFill(){
+  if(state.answered)return;
+  const q=ROOMS[state.currentRoom].questions[state.currentQ];
+  const val=document.getElementById('fillInput')?.value.trim().toLowerCase()||'';
+  const correct=val.length>0&&q.answer.some(a=>val.includes(a.toLowerCase())||a.toLowerCase().includes(val));
+  document.getElementById('fillInput').disabled=true;
+  document.querySelector('.fill-area .btn')?.setAttribute('disabled',true);
+  if(!correct)loseLife();
+  awardPoints(correct?q.points:0,correct);showFeedback(q.feedback,correct);
+}
+function awardPoints(pts,correct){
+  state.answered=true;state.score+=pts;
+  const ri=state.currentRoom;
+  state.roomScores[ri]=(state.roomScores[ri]||0)+pts;
+  if(correct)state.roomCorrect[ri]=(state.roomCorrect[ri]||0)+1;
+  else state.roomErrors[ri]=(state.roomErrors[ri]||0)+1;
+  document.getElementById('scoreDisplay').textContent=state.score;
+}
+function loseLife(){
+  state.lives--;updateTopBar();flashRed();
+  const h=document.getElementById('heart'+state.lives);if(h)h.classList.add('pulse');
+  if(state.lives<=0)setTimeout(showGameOverModal,600);
+}
+function flashRed(){
+  const o=document.getElementById('lifeLostOverlay');o.classList.add('flash');setTimeout(()=>o.classList.remove('flash'),300);
+}
+function showFeedback(text,correct){
+  const banner=document.getElementById('feedbackBanner');
+  banner.className='feedback-banner '+(correct?'correct':'wrong');banner.innerHTML=text;
+  const actions=document.getElementById('questionActions');
+  if(actions){
+    if(state.lives>0){actions.innerHTML='<button class="btn green" onclick="nextQuestion()">QUESTION SUIVANTE →</button>';}
+    else{actions.innerHTML='<p style="font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:4px">⏳ Faites votre choix dans la fenêtre…</p>';}
+  }
+}
+function nextQuestion(){
+  if(document.getElementById('modal').classList.contains('open'))return;
+  const room=ROOMS[state.currentRoom];
+  if(state.currentQ+1<room.questions.length){state.currentQ++;renderQuestion();}
+  else{showRoomResult();}
+}
+function showRoomResult(){
+  const room=ROOMS[state.currentRoom];const ri=state.currentRoom;
+  const correct=state.roomCorrect[ri]||0;const errors=state.roomErrors[ri]||0;
+  const pts=state.roomScores[ri]||0;const total=room.questions.length;
+  const success=correct>=Math.ceil(total/2);
+  const isLast=state.currentRoom===ROOMS.length-1;
+  const isBossNext=state.currentRoom===ROOMS.length-2;
+  document.getElementById('questionArea').innerHTML=`<div class="room-result">
+    <div class="result-icon">${success?'🏆':'😓'}</div>
+    <div class="result-title ${success?'success':'failed'}">${success?'SALLE RÉUSSIE !':'SALLE TERMINÉE'}</div>
+    <div class="result-stats">
+      <div class="stat-card"><div class="stat-val">${correct}/${total}</div><div class="stat-label">Bonnes réponses</div></div>
+      <div class="stat-card"><div class="stat-val" style="color:var(--red)">${errors}</div><div class="stat-label">Erreurs</div></div>
+      <div class="stat-card"><div class="stat-val">${pts}</div><div class="stat-label">Points gagnés</div></div>
+    </div>
+    ${isLast?'<button class="btn gold" style="max-width:320px" onclick="finishGame()">🏁 VOIR MON SCORE FINAL</button>':`<button class="btn" style="max-width:320px" onclick="goNextRoom()">${isBossNext?'💀 SALLE BOSS':'SALLE '+(state.currentRoom+2)} →</button>`}
+  </div>`;
+}
+function goNextRoom(){loadRoom(state.currentRoom+1);}
+function showGameOverModal(){
+  document.getElementById('modalTitle').textContent='💔 PLUS DE VIES';
+  document.getElementById('modalBody').innerHTML="Vous n'avez plus de vies dans cette salle.<br>Rachetez <strong>1 vie</strong> pour continuer (&minus;50 pts), ou abandonnez.";
+  document.getElementById('modal').classList.add('open');
+}
+function buyLives(){
+  state.score=Math.max(0,state.score-50);state.buyCount++;state.lives=1;
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('scoreDisplay').textContent=state.score;
+  updateTopBar();renderQuestion();
+}
+function gameOver(){document.getElementById('modal').classList.remove('open');showRoomResult();}
+function finishGame(){
+  const maxScore=ROOMS.reduce((s,r)=>s+r.questions.reduce((ss,q)=>ss+q.points,0),0);
+  const pct=Math.round((state.score/maxScore)*100);
+  show('final');
+  document.getElementById('finalScore').textContent=state.score+' pts';
+  document.getElementById('finalName').value=state.playerName;
+  let html=`<div class="score-row"><span>Score total</span><span class="val">${state.score} / ${maxScore} pts</span></div>`;
+  ROOMS.forEach((r,i)=>{html+=`<div class="score-row"><span>${r.isBoss?'💀 Boss':'Salle '+r.id+' — '+r.icon}</span><span class="val">${state.roomScores[i]||0} pts</span></div>`;});
+  if(state.buyCount>0){html+=`<div class="score-row"><span>Pénalités rachat ×${state.buyCount}</span><span class="val neg">−${state.buyCount*50} pts</span></div>`;}
+  html+=`<div class="score-row" style="font-size:15px;color:var(--gold)"><span>Taux de réussite</span><span class="val">${pct}%</span></div>`;
+  document.getElementById('scoreBreakdown').innerHTML=html;
+  const titles={90:'🏆 STRATÈGE EXPERT !',75:'⭐ EXCELLENT !',50:'👍 BIEN JOUÉ !',0:'📚 À RÉVISER'};
+  const key=Object.keys(titles).reverse().find(k=>pct>=+k);
+  document.querySelector('#final .final-title').textContent=titles[key];
+}
+function sendScore(){
+  const name=document.getElementById('finalName').value.trim()||state.playerName;
+  const maxScore=ROOMS.reduce((s,r)=>s+r.questions.reduce((ss,q)=>ss+q.points,0),0);
+  const pct=Math.round((state.score/maxScore)*100);
+  const now=new Date().toLocaleString('fr-FR');
+  const status=document.getElementById('sendStatus');
+
+  // Construire les lignes du mail
+  const SEP='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  const details=ROOMS.map((r,i)=>
+    '  • '+(r.isBoss?'Boss':'Salle '+r.id)+' ('+r.title+'): '+(state.roomScores[i]||0)+' pts — '+(state.roomCorrect[i]||0)+'/'+r.questions.length+' bonnes réponses'
+  ).join('\n');
+  const bodyText=[
+    'Escape Game - Les Choix Strategiques des Organisations',
+    'Premiere STMG - Management Theme 3',
+    SEP,
+    'Eleve       : '+name,
+    'Date        : '+now,
+    'Score final : '+state.score+' / '+maxScore+' pts ('+pct+'%)',
+    'Vies rachetees : '+state.buyCount+' x (-50 pts)',
+    SEP,
+    'Detail par salle :',
+    details,
+    SEP
+  ].join('\n');
+
+  // encodeURIComponent sur tout le body (sauts de ligne + caractères spéciaux)
+  const subject=encodeURIComponent('[Escape Management Theme 3] '+name+' - '+state.score+'pts ('+pct+'%)');
+  const mailHref='mailto:c.chaudronnier@ejda.fr?subject='+subject+'&body='+encodeURIComponent(bodyText);
+
+  // Ouverture SYNCHRONE — fonctionne sur iOS Safari, Android, PC
+  window.location.href = mailHref;
+
+  status.className='send-status ok';
+  status.style.display='block';
+  status.textContent='✅ Client mail ouvert — envoyez le message à votre professeur.';
+
+  // Appel API en arrière-plan (message encouragement) — bug apostrophe corrigé
+  const prompt='En 2 phrases max, encourage en francais l\'eleve '+name+' qui vient de terminer un escape game de Management avec '+state.score+' pts sur '+maxScore+' ('+pct+'%). Sois chaleureux.';
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:200,
+      messages:[{role:'user',content:prompt}]
+    })
+  })
+  .then(r=>r.json())
+  .then(data=>{
+    const msg=data?.content?.[0]?.text||'';
+    if(msg) status.textContent='✅ Mail envoyé. '+msg;
+  })
+  .catch(()=>{}); // silencieux si API indisponible
+}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function disableButtons(selector){document.querySelectorAll(selector).forEach(b=>b.disabled=true);}
+</script>
+</body>
+</html>

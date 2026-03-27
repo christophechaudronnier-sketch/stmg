@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ESCAPE — Croissance &amp; Développement Durable — Terminale STMG</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060a12;--panel:#0b1320;--panel2:#101c30;
+  --border:#1a3356;--border2:#243d60;
+  --accent:#00c8ff;--accent2:#ff5722;--accent3:#39ff14;
+  --gold:#ffd000;--red:#ff1a3e;--text:#b8d4f0;--dim:#3d5c85;
+  --success:#00e87a;--warn:#ffaa00;--purple:#b44fff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  repeating-linear-gradient(0deg,transparent,transparent 49px,rgba(0,200,255,.025) 50px),
+  repeating-linear-gradient(90deg,transparent,transparent 49px,rgba(0,200,255,.025) 50px);
+  pointer-events:none;z-index:0;}
+
+/* ── HUD ── */
+#hud{position:fixed;top:0;left:0;right:0;background:rgba(6,10,18,.97);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:7px 14px;z-index:100;
+  box-shadow:0 2px 20px rgba(0,200,255,.08);}
+.hud-brand{font-family:'Orbitron',monospace;font-size:.65rem;color:var(--accent);letter-spacing:3px;white-space:nowrap;}
+.hud-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+.hud-stat{display:flex;flex-direction:column;align-items:center;min-width:50px;}
+.hud-lbl{font-size:.5rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
+.hud-val{font-family:'Orbitron',monospace;font-size:.95rem;font-weight:700;}
+.hud-val.score{color:var(--gold);}
+.hud-val.lives{color:var(--red);}
+.hud-val.room{color:var(--accent);}
+#hud-progress{flex:1;display:flex;gap:4px;justify-content:flex-end;min-width:80px;}
+.prog-dot{width:10px;height:10px;border-radius:50%;background:var(--border);border:1px solid var(--border2);transition:all .3s;}
+.prog-dot.done{background:var(--success);border-color:var(--success);box-shadow:0 0 6px var(--success);}
+.prog-dot.cur{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px var(--gold);}
+.prog-dot.boss{background:var(--red);border-color:var(--red);box-shadow:0 0 8px var(--red);}
+#buy-life-btn{background:transparent;border:1px solid var(--warn);border-radius:4px;
+  padding:3px 8px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--warn);
+  cursor:pointer;display:none;transition:all .2s;}
+#buy-life-btn:hover{background:rgba(255,170,0,.15);}
+
+/* ── SCREENS ── */
+.screen{display:none;position:relative;z-index:1;}
+.screen.active{display:flex;flex-direction:column;}
+
+/* ── ACCUEIL ── */
+#s-home{min-height:100vh;align-items:center;justify-content:center;padding:80px 20px 40px;text-align:center;}
+.home-eyebrow{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--accent);letter-spacing:4px;margin-bottom:12px;}
+.home-title{font-family:'Orbitron',monospace;font-size:clamp(2rem,7vw,4rem);font-weight:900;
+  color:#fff;line-height:1;margin-bottom:8px;text-shadow:0 0 40px rgba(0,200,255,.4);}
+.home-sub{font-family:'Orbitron',monospace;font-size:clamp(.9rem,2.5vw,1.4rem);
+  color:var(--accent);letter-spacing:3px;margin-bottom:24px;}
+.home-desc{max-width:600px;margin:0 auto 32px;color:var(--dim);font-size:.95rem;line-height:1.7;}
+.home-rooms{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:40px;}
+.home-room-tag{background:var(--panel);border:1px solid var(--border);border-radius:3px;
+  padding:6px 14px;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent);letter-spacing:1px;}
+.home-form{display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin:0 auto;}
+.home-form label{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);letter-spacing:2px;text-align:left;}
+.home-form input{background:var(--panel);border:1px solid var(--border);border-radius:4px;
+  padding:10px 14px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:.9rem;outline:none;
+  transition:border-color .2s;}
+.home-form input:focus{border-color:var(--accent);}
+.btn-primary{background:transparent;border:2px solid var(--accent);border-radius:4px;
+  padding:12px 32px;font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;
+  color:var(--accent);letter-spacing:3px;cursor:pointer;transition:all .2s;margin-top:4px;}
+.btn-primary:hover{background:rgba(0,200,255,.1);box-shadow:0 0 20px rgba(0,200,255,.3);}
+.home-stats{display:flex;gap:24px;justify-content:center;margin-top:24px;flex-wrap:wrap;}
+.home-stat{text-align:center;}
+.home-stat-val{font-family:'Orbitron',monospace;font-size:1.4rem;color:var(--gold);}
+.home-stat-lbl{font-size:.65rem;color:var(--dim);letter-spacing:2px;text-transform:uppercase;}
+
+/* ── SALLE ── */
+#s-game{min-height:100vh;padding:80px 0 60px;max-width:800px;margin:0 auto;width:100%;}
+.room-header{text-align:center;padding:32px 20px 28px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+.room-eyebrow{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);letter-spacing:3px;margin-bottom:8px;}
+.room-title{font-family:'Orbitron',monospace;font-size:clamp(1.2rem,4vw,2rem);font-weight:700;
+  color:#fff;margin-bottom:10px;text-shadow:0 0 20px rgba(0,200,255,.3);}
+.room-intro{color:var(--dim);font-size:.9rem;line-height:1.7;font-style:italic;max-width:560px;margin:0 auto;}
+
+/* ── PUZZLE ── */
+.puzzle{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  margin:0 16px 12px;padding:22px 20px 18px;transition:border-color .3s;}
+.puzzle.locked{opacity:.35;pointer-events:none;filter:blur(1px);}
+.puzzle.ok{border-color:var(--success);}
+.puzzle.ko{border-color:var(--red);}
+.puz-meta{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--dim);
+  letter-spacing:2px;margin-bottom:10px;display:flex;justify-content:space-between;}
+.puz-meta .pts{color:var(--gold);}
+.puz-q{font-size:.95rem;line-height:1.65;margin-bottom:16px;font-weight:600;color:#d0e8ff;}
+.puz-q em{color:var(--accent);font-style:normal;}
+
+/* Options QCM */
+.opts{display:flex;flex-direction:column;gap:7px;}
+.opt{background:var(--panel2);border:1px solid var(--border);border-radius:4px;
+  padding:10px 14px;cursor:pointer;font-size:.88rem;text-align:left;color:var(--text);
+  display:flex;align-items:center;gap:10px;transition:all .15s;}
+.opt-key{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--dim);
+  width:18px;flex-shrink:0;}
+.opt:hover:not(:disabled){border-color:var(--accent);background:rgba(0,200,255,.07);}
+.opt:disabled{cursor:default;}
+.opt.sel-ok{border-color:var(--success);background:rgba(0,232,122,.1);color:#fff;}
+.opt.sel-ko{border-color:var(--red);background:rgba(255,26,62,.1);color:#fff;}
+.opt.reveal{border-color:var(--success);opacity:.55;}
+
+/* Input */
+.inp-row{display:flex;gap:8px;flex-wrap:wrap;}
+.puz-input{flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--border);
+  border-radius:4px;padding:10px 14px;color:#fff;font-family:'Share Tech Mono',monospace;
+  font-size:.88rem;outline:none;transition:border-color .2s;}
+.puz-input:focus{border-color:var(--accent);}
+.puz-input:disabled{opacity:.5;}
+.btn-val{background:transparent;border:1px solid var(--accent);border-radius:4px;
+  padding:10px 16px;font-family:'Share Tech Mono',monospace;font-size:.75rem;
+  color:var(--accent);cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;}
+.btn-val:hover:not(:disabled){background:rgba(0,200,255,.1);}
+.btn-val:disabled{opacity:.4;cursor:default;}
+
+/* Matching */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.match-col-title{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--dim);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.match-col{display:flex;flex-direction:column;gap:6px;}
+.match-item{background:var(--panel2);border:1px solid var(--border);border-radius:4px;
+  padding:9px 12px;cursor:pointer;font-size:.82rem;transition:all .15s;min-height:40px;
+  display:flex;align-items:center;}
+.match-item:hover:not(.m-done){border-color:var(--purple);}
+.match-item.m-sel{border-color:var(--purple);background:rgba(180,79,255,.1);}
+.match-item.m-ok{border-color:var(--success);background:rgba(0,232,122,.08);cursor:default;}
+.match-item.m-done{cursor:default;}
+
+/* Feedback */
+.feedback{margin-top:12px;padding:10px 14px;border-radius:4px;font-size:.82rem;
+  line-height:1.6;display:none;}
+.feedback.show{display:block;}
+.feedback.ok{background:rgba(0,232,122,.08);border:1px solid var(--success);color:#a0ffd0;}
+.feedback.ko{background:rgba(255,26,62,.08);border:1px solid var(--red);color:#ffa0b0;}
+.feedback strong{color:#fff;}
+
+/* Room footer */
+.room-footer{text-align:center;padding:32px 16px;display:none;}
+.room-footer.show{display:block;}
+.room-score-line{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--dim);
+  letter-spacing:2px;margin-bottom:16px;}
+.room-score-line span{color:var(--gold);}
+
+/* ── VICTOIRE / GAME OVER ── */
+#s-win,#s-lose{min-height:100vh;align-items:center;justify-content:center;padding:80px 20px 40px;text-align:center;}
+.end-eyebrow{font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:4px;margin-bottom:12px;}
+.end-eyebrow.win{color:var(--success);}
+.end-eyebrow.lose{color:var(--red);}
+.end-title{font-family:'Orbitron',monospace;font-size:clamp(2.5rem,10vw,5rem);font-weight:900;
+  line-height:1;margin-bottom:16px;}
+.end-title.win{color:var(--success);text-shadow:0 0 40px rgba(0,232,122,.4);}
+.end-title.lose{color:var(--red);text-shadow:0 0 40px rgba(255,26,62,.4);}
+.grade-badge{display:inline-block;font-family:'Orbitron',monospace;font-size:3rem;font-weight:900;
+  padding:16px 32px;border-radius:6px;margin:16px 0;}
+.grade-A{background:rgba(0,232,122,.15);border:2px solid var(--success);color:var(--success);}
+.grade-B{background:rgba(255,208,0,.1);border:2px solid var(--gold);color:var(--gold);}
+.grade-C{background:rgba(255,170,0,.1);border:2px solid var(--warn);color:var(--warn);}
+.grade-D{background:rgba(255,26,62,.1);border:2px solid var(--red);color:var(--red);}
+.win-score{font-family:'Orbitron',monospace;font-size:1.5rem;color:var(--gold);margin-bottom:8px;}
+.win-score span{font-size:.9rem;color:var(--dim);}
+.win-msg{color:var(--dim);font-size:.9rem;max-width:500px;margin:0 auto 24px;line-height:1.7;}
+.win-details{background:var(--panel);border:1px solid var(--border);border-radius:6px;
+  padding:16px 20px;max-width:420px;margin:0 auto 24px;text-align:left;}
+.dl{display:flex;justify-content:space-between;font-family:'Share Tech Mono',monospace;
+  font-size:.75rem;padding:4px 0;border-bottom:1px solid var(--border);color:var(--dim);}
+.dl:last-child{border:none;}
+.dl strong{color:var(--gold);}
+.win-form{display:flex;flex-direction:column;gap:8px;max-width:380px;margin:0 auto 20px;}
+.win-form label{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--dim);letter-spacing:2px;text-align:left;}
+.win-form input{background:var(--panel);border:1px solid var(--border);border-radius:4px;
+  padding:9px 14px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:.85rem;outline:none;}
+.win-form input:focus{border-color:var(--accent);}
+.btn-send{background:transparent;border:2px solid var(--success);border-radius:4px;
+  padding:12px 32px;font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;
+  color:var(--success);letter-spacing:3px;cursor:pointer;transition:all .2s;}
+.btn-send:hover{background:rgba(0,232,122,.1);box-shadow:0 0 20px rgba(0,232,122,.3);}
+.send-note{font-family:'Share Tech Mono',monospace;font-size:.65rem;color:var(--dim);margin-top:8px;}
+.ai-box{max-width:560px;margin:0 auto 24px;background:var(--panel);border:1px solid var(--border);
+  border-radius:6px;padding:16px 20px;font-style:italic;font-size:.9rem;line-height:1.7;
+  color:#a0ffd0;display:none;}
+.ai-box.show{display:block;}
+.btn-restart{background:transparent;border:1px solid var(--border);border-radius:4px;
+  padding:9px 20px;font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--dim);
+  cursor:pointer;margin-top:12px;transition:all .2s;}
+.btn-restart:hover{border-color:var(--text);color:var(--text);}
+
+/* ── GAME OVER OVERLAY ── */
+#go-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;
+  align-items:center;justify-content:center;padding:24px;}
+#go-overlay.show{display:flex;}
+.go-box{background:var(--panel);border:2px solid var(--red);border-radius:8px;
+  padding:40px 32px;max-width:420px;width:100%;text-align:center;}
+.go-title{font-family:'Orbitron',monospace;font-size:2.5rem;font-weight:900;
+  color:var(--red);margin-bottom:12px;text-shadow:0 0 20px rgba(255,26,62,.5);}
+.go-text{font-size:.9rem;color:var(--dim);line-height:1.7;margin-bottom:24px;}
+.go-buy{background:transparent;border:1px solid var(--warn);border-radius:4px;
+  padding:10px 24px;font-family:'Share Tech Mono',monospace;font-size:.8rem;
+  color:var(--warn);cursor:pointer;transition:all .2s;margin-bottom:10px;width:100%;}
+.go-buy:hover{background:rgba(255,170,0,.1);}
+.go-decline{background:transparent;border:1px solid var(--border);border-radius:4px;
+  padding:8px 20px;font-family:'Share Tech Mono',monospace;font-size:.7rem;
+  color:var(--dim);cursor:pointer;transition:all .2s;}
+.go-decline:hover{border-color:var(--text);color:var(--text);}
+
+@media(max-width:600px){
+  .match-grid{grid-template-columns:1fr;}
+  #s-game{padding:72px 0 40px;}
+}
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-brand">ESCAPE</div>
+  <div class="hud-sep"></div>
+  <div class="hud-stat"><div class="hud-lbl">Score</div><div class="hud-val score" id="hud-score">0</div></div>
+  <div class="hud-sep"></div>
+  <div class="hud-stat"><div class="hud-lbl">Vies</div><div class="hud-val lives" id="hud-lives">❤❤❤</div></div>
+  <div class="hud-sep"></div>
+  <div class="hud-stat"><div class="hud-lbl">Salle</div><div class="hud-val room" id="hud-room">—</div></div>
+  <div id="hud-progress"></div>
+  <button id="buy-life-btn" onclick="buyLife()">❤ +VIE (−50 pts)</button>
+</div>
+
+<!-- ACCUEIL -->
+<div id="s-home" class="screen active">
+  <div class="home-eyebrow">Terminale STMG — Économie</div>
+  <div class="home-title">ESCAPE</div>
+  <div class="home-sub">Croissance &amp; Développement Durable</div>
+  <p class="home-desc">Chapitres 9 &amp; 10 — 4 salles, 40 questions, difficulté maximale.<br>3 vies par partie. Chaque erreur coûte cher.</p>
+  <div class="home-rooms">
+    <div class="home-room-tag">① Les sources de la croissance</div>
+    <div class="home-room-tag">② Les limites du modèle</div>
+    <div class="home-room-tag">③ Biens publics mondiaux</div>
+    <div class="home-room-tag">④ Transition &amp; ESS</div>
+    <div class="home-room-tag" style="border-color:var(--red);color:var(--red);">⑤ BOSS — Le cas Patagonia</div>
+  </div>
+  <div class="home-stats">
+    <div class="home-stat"><div class="home-stat-val">5</div><div class="home-stat-lbl">Salles</div></div>
+    <div class="home-stat"><div class="home-stat-val">50</div><div class="home-stat-lbl">Questions</div></div>
+    <div class="home-stat"><div class="home-stat-val">3</div><div class="home-stat-lbl">Vies</div></div>
+  </div>
+  <div class="home-form">
+    <label>PRÉNOM &amp; NOM</label>
+    <input type="text" id="inp-name" placeholder="Ex. : Marie Dupont" maxlength="60">
+    <button class="btn-primary" onclick="startGame()">▶ DÉMARRER</button>
+  </div>
+</div>
+
+<!-- JEU -->
+<div id="s-game" class="screen">
+  <div id="game-content"></div>
+</div>
+
+<!-- VICTOIRE -->
+<div id="s-win" class="screen">
+  <div class="end-eyebrow win">Mission accomplie</div>
+  <div class="end-title win">SUCCÈS</div>
+  <div class="win-score" id="win-score-val">0 <span>pts</span></div>
+  <div class="grade-badge" id="win-grade">A</div>
+  <p class="win-msg" id="win-msg"></p>
+  <div class="win-details" id="win-details"></div>
+  <div class="ai-box" id="ai-box"></div>
+  <div class="win-form">
+    <label>VÉRIFIER VOTRE NOM AVANT ENVOI</label>
+    <input type="text" id="win-name" placeholder="Prénom Nom">
+  </div>
+  <button class="btn-send" onclick="sendScore()">📧 ENVOYER MON SCORE</button>
+  <div class="send-note">Score envoyé à c.chaudronnier@ejda.fr</div>
+  <br><button class="btn-restart" onclick="restartGame()">Recommencer</button>
+</div>
+
+<!-- GAME OVER FINAL -->
+<div id="s-lose" class="screen">
+  <div class="end-eyebrow lose">Échec</div>
+  <div class="end-title lose">GAME OVER</div>
+  <div class="win-score" id="lose-score-val">0 <span>pts</span></div>
+  <p class="win-msg">Vos vies sont épuisées. Révisez vos chapitres et retentez votre chance !</p>
+  <div class="win-form">
+    <label>VÉRIFIER VOTRE NOM AVANT ENVOI</label>
+    <input type="text" id="lose-name" placeholder="Prénom Nom">
+  </div>
+  <button class="btn-send" style="border-color:var(--warn);color:var(--warn);" onclick="sendScoreLose()">📧 ENVOYER MON SCORE</button>
+  <div class="send-note">Score envoyé à c.chaudronnier@ejda.fr</div>
+  <br><button class="btn-restart" onclick="restartGame()">Recommencer</button>
+</div>
+
+<!-- GAME OVER OVERLAY (rachat vie) -->
+<div id="go-overlay">
+  <div class="go-box">
+    <div class="go-title">GAME OVER</div>
+    <p class="go-text" id="go-text">Vous n'avez plus de vies. Souhaitez-vous racheter une vie ?</p>
+    <button class="go-buy" id="go-buy-btn" onclick="buyLifeOverlay()">❤ RACHETER 1 VIE — 50 pts</button>
+    <br>
+    <button class="go-decline" onclick="confirmGameOver()">Terminer la partie</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DONNÉES
+// ═══════════════════════════════════════
+const ROOMS = [
+  // ── SALLE 1 ── Sources de la croissance (Chap. 9 – Partie I)
+  {
+    id: 1,
+    title: "Les sources de la croissance",
+    subtitle: "Chapitre 9 — Partie I",
+    intro: "La croissance économique repose sur des facteurs précis. Identifiez-les, maîtrisez les chiffres et les définitions.",
+    questions: [
+      {
+        type: "qcm",
+        text: "La Productivité Globale des Facteurs (PGF) mesure :",
+        options: [
+          "Le volume total de travail et de capital mobilisés",
+          "La part de la croissance non expliquée par l'augmentation des seuls facteurs de production",
+          "Le taux de croissance annuel du PIB",
+          "La rentabilité financière des entreprises innovantes"
+        ],
+        correct: 1,
+        points: 140,
+        feedback: "La PGF, appelée aussi « résidu de Solow », mesure la fraction de la croissance non imputable à l'accumulation du travail et du capital. Elle traduit l'efficacité productive, largement portée par le progrès technique."
+      },
+      {
+        type: "qcm",
+        text: "Quelle est la différence fondamentale entre une invention et une innovation ?",
+        options: [
+          "Une invention est collective, une innovation est individuelle",
+          "L'innovation est la mise en œuvre commerciale d'une idée nouvelle ; l'invention est une découverte sans application marchande",
+          "Une invention est protégée par un brevet, une innovation ne l'est pas",
+          "L'innovation concerne uniquement les procédés de fabrication"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "L'innovation se distingue de l'invention par sa dimension commerciale : elle désigne la mise en œuvre effective d'une idée nouvelle (nouveau produit, procédé, organisation, marché). L'invention peut rester à l'état de prototype sans jamais être commercialisée."
+      },
+      {
+        type: "input",
+        text: "Quelle est la durée du monopole d'exploitation accordé par un brevet en Europe ? (répondre : « 20 ans »)",
+        answer: ["20 ans", "20ans", "vingt ans"],
+        points: 120,
+        feedback: "En Europe, un brevet confère un monopole temporaire de 20 ans. Ce droit de propriété intellectuelle incite les entreprises à investir en R&D en leur garantissant de pouvoir rentabiliser leurs dépenses."
+      },
+      {
+        type: "qcm",
+        text: "Selon une étude McKinsey (2024), quelle valeur ajoutée annuelle l'IA générative pourrait-elle générer à l'échelle mondiale ?",
+        options: [
+          "Entre 500 et 800 milliards de dollars",
+          "Entre 2 600 et 4 400 milliards de dollars",
+          "Entre 10 000 et 15 000 milliards de dollars",
+          "Entre 1 000 et 1 500 milliards de dollars"
+        ],
+        correct: 1,
+        points: 150,
+        feedback: "McKinsey Global Institute (2024) estime que l'IA générative (ChatGPT, Copilot, Gemini…) pourrait générer entre 2 600 et 4 400 milliards de dollars de valeur ajoutée annuelle mondiale — un exemple contemporain de progrès technique majeur."
+      },
+      {
+        type: "qcm",
+        text: "Parmi les éléments suivants, lequel n'est PAS un facteur de production au sens économique classique ?",
+        options: [
+          "Le capital physique (machines, bâtiments)",
+          "Le facteur travail (heures travaillées)",
+          "Le capital immatériel (brevets, logiciels)",
+          "Le taux de chômage national"
+        ],
+        correct: 3,
+        points: 130,
+        feedback: "Les facteurs de production classiques sont le travail et le capital (physique et immatériel). Le taux de chômage est un indicateur du marché du travail, pas un facteur de production."
+      },
+      {
+        type: "qcm",
+        text: "Quelle est la différence essentielle entre la croissance économique et le développement ?",
+        options: [
+          "La croissance est mesurée en dollars, le développement en euros",
+          "La croissance est un phénomène quantitatif (PIB), le développement est qualitatif (bien-être, IDH…)",
+          "Le développement correspond uniquement à la croissance des pays pauvres",
+          "La croissance est durable, le développement est transitoire"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "La croissance mesure l'augmentation de la production nationale via le PIB (quantitatif). Le développement désigne l'ensemble des transformations sociales, économiques et culturelles améliorant les conditions de vie (qualitatif), mesuré par l'IDH, l'empreinte écologique, le PIB vert…"
+      },
+      {
+        type: "input",
+        text: "En 2024, quelle part de son PIB la France consacre-t-elle à l'éducation selon l'OCDE ? (ex : « 5,5 % »)",
+        answer: ["5,5 %", "5,5%", "5.5 %", "5.5%", "environ 5,5 %"],
+        points: 140,
+        feedback: "En 2024, la France consacre environ 5,5 % de son PIB à l'éducation (source OCDE). Investir dans le capital humain — compétences, savoirs, qualifications — élève la productivité et favorise l'adaptabilité aux mutations technologiques."
+      },
+      {
+        type: "matching",
+        text: "Associez chaque indicateur à ce qu'il mesure :",
+        pairs: [
+          { left: "IDH", right: "PIB/hab., espérance de vie, niveau d'éducation" },
+          { left: "PGF", right: "Part de la croissance non due aux facteurs de production" },
+          { left: "Empreinte écologique", right: "Pression humaine sur les ressources naturelles" },
+          { left: "PIB vert", right: "Richesse corrigée des dégradations environnementales" }
+        ],
+        points: 160,
+        feedback: "Ces quatre indicateurs sont complémentaires : l'IDH est multidimensionnel (humain), la PGF mesure l'efficacité productive, l'empreinte écologique compare nos usages à la biocapacité disponible, et le PIB vert intègre les externalités négatives."
+      },
+      {
+        type: "qcm",
+        text: "Le « capital humain » désigne :",
+        options: [
+          "Le nombre de travailleurs disponibles sur le marché du travail",
+          "L'ensemble des compétences, savoirs et qualifications des individus",
+          "Le capital financier détenu par les ménages",
+          "Les infrastructures publiques financées par l'État"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "Le capital humain désigne l'ensemble des compétences, savoirs et qualifications des individus. Investir dans le capital humain (via l'éducation, la formation) élève la productivité, favorise l'adaptation aux mutations technologiques et réduit les inégalités."
+      },
+      {
+        type: "qcm",
+        text: "Un système financier stable contribue à la croissance économique principalement parce qu'il :",
+        options: [
+          "Garantit des taux d'intérêt nuls pour toutes les entreprises",
+          "Permet aux ménages d'épargner et aux banques de financer les investissements des entreprises",
+          "Supprime le risque de faillite des grandes entreprises",
+          "Assure une répartition égale des revenus dans la population"
+        ],
+        correct: 1,
+        points: 140,
+        feedback: "Sans confiance dans le système bancaire, les ménages n'épargnent pas, les banques ne prêtent pas, et les entreprises ne peuvent pas financer leurs investissements. La stabilité financière est donc une condition préalable à la croissance économique."
+      }
+    ]
+  },
+
+  // ── SALLE 2 ── Limites du modèle & développement durable (Chap. 9 – Parties II & III)
+  {
+    id: 2,
+    title: "Les limites du modèle",
+    subtitle: "Chapitre 9 — Parties II & III",
+    intro: "Réchauffement climatique, pauvreté, inégalités, développement durable : maîtrisez les chiffres et les concepts clés.",
+    questions: [
+      {
+        type: "qcm",
+        text: "Selon l'OMM, de combien de degrés la température mondiale de 2024 a-t-elle dépassé les niveaux préindustriels ?",
+        options: ["+0,85 °C", "+1,2 °C", "+1,55 °C", "+2,1 °C"],
+        correct: 2,
+        points: 150,
+        feedback: "L'OMM confirme que 2024 a été l'année la plus chaude jamais enregistrée, avec +1,55 °C par rapport aux niveaux préindustriels. La concentration de CO₂ a atteint 423,9 ppm, un record absolu depuis le début des mesures modernes en 1957."
+      },
+      {
+        type: "input",
+        text: "En 2024, quelle concentration de CO₂ (en ppm) a été enregistrée dans l'atmosphère ? (ex : « 423,9 ppm »)",
+        answer: ["423,9 ppm", "423.9 ppm", "423,9", "423.9"],
+        points: 150,
+        feedback: "La concentration atmosphérique de CO₂ a atteint 423,9 ppm en moyenne annuelle en 2024 — un record absolu — après une hausse de 3,5 ppm sur un an, soit le rythme le plus élevé depuis 1957."
+      },
+      {
+        type: "input",
+        text: "Selon le Global Carbon Budget 2024, quel nouveau record d'émissions mondiales de CO₂ fossile a été atteint ? (ex : « 37,4 milliards de tonnes »)",
+        answer: ["37,4 milliards de tonnes", "37.4 milliards de tonnes", "37,4 milliards", "37.4 milliards", "37,4"],
+        points: 140,
+        feedback: "Les émissions mondiales de CO₂ liées aux combustibles fossiles ont atteint 37,4 milliards de tonnes en 2024 — un nouveau record absolu selon le Global Carbon Budget 2024."
+      },
+      {
+        type: "qcm",
+        text: "Selon la Banque mondiale (rapport 2024), quelle part de la population mondiale vit avec moins de 6,85 $/jour ?",
+        options: ["Environ 12 %", "Environ 27 %", "Environ 44 %", "Environ 60 %"],
+        correct: 2,
+        points: 150,
+        feedback: "Le rapport « Poverty, Prosperity and Planet » (octobre 2024) révèle que 44 % de la population mondiale vit avec moins de 6,85 $/jour. Les progrès sont « au point mort » depuis la pandémie de Covid-19."
+      },
+      {
+        type: "qcm",
+        text: "La pauvreté relative se définit comme :",
+        options: [
+          "Un niveau de vie insuffisant pour se nourrir et se loger",
+          "Un revenu inférieur au seuil fixé par la Banque mondiale (3 $/jour)",
+          "Un niveau de vie inférieur à 60 % du revenu médian national",
+          "L'absence totale de revenu monétaire"
+        ],
+        correct: 2,
+        points: 130,
+        feedback: "En France et en Europe, le seuil de pauvreté relative est fixé à 60 % du revenu médian national. Contrairement à la pauvreté absolue (besoins vitaux non couverts), la pauvreté relative mesure un décrochage par rapport à la norme sociale du pays."
+      },
+      {
+        type: "qcm",
+        text: "Combien de personnes vivaient encore dans l'extrême pauvreté en 2022 selon la Banque mondiale ?",
+        options: [
+          "Environ 250 millions",
+          "Environ 500 millions",
+          "Environ 838 millions",
+          "Environ 1,5 milliard"
+        ],
+        correct: 2,
+        points: 140,
+        feedback: "Environ 838 millions de personnes vivaient dans l'extrême pauvreté en 2022 (sous le seuil de 3 $/jour en PPA 2021). Malgré des progrès depuis 1990 (le taux est passé d'environ 37 % à 9 %), la pauvreté absolue reste massive."
+      },
+      {
+        type: "qcm",
+        text: "La définition du développement durable issue du rapport Brundtland (1987) précise qu'il doit répondre aux besoins du présent :",
+        options: [
+          "…en maximisant la croissance du PIB mondial",
+          "…sans compromettre la capacité des générations futures de répondre aux leurs",
+          "…en réduisant la consommation de moitié d'ici 2030",
+          "…par une répartition équitable des ressources entre nations"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "La formule exacte du rapport Brundtland (1987) : « un mode de développement qui répond aux besoins du présent sans compromettre la capacité des générations futures de répondre aux leurs ». C'est la définition de référence du développement durable."
+      },
+      {
+        type: "qcm",
+        text: "Les trois piliers du développement durable correspondent aux exigences :",
+        options: [
+          "Viable (économique), Vivable (environnemental), Équitable (social)",
+          "Durable (économique), Soutenable (social), Rentable (environnemental)",
+          "Global (économique), Local (social), Cyclique (environnemental)",
+          "Libre (économique), Juste (environnemental), Stable (social)"
+        ],
+        correct: 0,
+        points: 130,
+        feedback: "Le développement durable articule trois piliers : Économique (VIABLE : créer de la richesse, garantir l'emploi), Environnemental (VIVABLE : protéger les ressources, réduire les GES), Social (ÉQUITABLE : accès à l'éducation, à la santé, réduire les inégalités)."
+      },
+      {
+        type: "input",
+        text: "En quelle année les 193 États membres de l'ONU ont-ils adopté l'Agenda 2030 et ses 17 ODD ? (ex : « 2015 »)",
+        answer: ["2015", "en 2015"],
+        points: 120,
+        feedback: "En 2015, les 193 États membres de l'ONU ont adopté l'Agenda 2030, qui fixe 17 Objectifs de Développement Durable (ODD) à atteindre d'ici 2030. Ces objectifs universels couvrent toutes les dimensions du développement durable."
+      },
+      {
+        type: "matching",
+        text: "Associez chaque ressource à sa catégorie :",
+        pairs: [
+          { left: "Pétrole", right: "Ressource non renouvelable" },
+          { left: "Énergie solaire", right: "Ressource renouvelable" },
+          { left: "Lithium", right: "Ressource non renouvelable" },
+          { left: "Biomasse forestière", right: "Ressource renouvelable" }
+        ],
+        points: 150,
+        feedback: "Les ressources non renouvelables (pétrole, gaz, charbon, minerais comme le lithium) ont un stock fini. Les ressources renouvelables (solaire, éolien, biomasse…) se régénèrent naturellement — mais peuvent être surexploitées au-delà de leur rythme de renouvellement."
+      }
+    ]
+  },
+
+  // ── SALLE 3 ── Biens publics mondiaux & coopération (Chap. 10 – Partie I)
+  {
+    id: 3,
+    title: "Biens publics mondiaux",
+    subtitle: "Chapitre 10 — Partie I",
+    intro: "Climat, biodiversité, coopération internationale : les biens publics mondiaux exigent une action collective. Démontrez que vous maîtrisez les mécanismes.",
+    questions: [
+      {
+        type: "qcm",
+        text: "Un bien public mondial (BPM) se caractérise par deux propriétés fondamentales. Lesquelles ?",
+        options: [
+          "Exclusivité et rivalité",
+          "Non-rivalité et non-exclusion",
+          "Gratuité et universalité",
+          "Abondance et partage"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "Tout bien public est non rival (sa consommation par un agent n'en prive pas un autre) et non excluable (nul ne peut en être écarté). Le BPM étend ces propriétés à l'échelle planétaire, au bénéfice de l'ensemble des pays et des générations."
+      },
+      {
+        type: "qcm",
+        text: "Le « problème du passager clandestin » (free rider) dans le contexte des BPM désigne :",
+        options: [
+          "Les migrants qui traversent les frontières sans visa",
+          "La tendance d'un État à bénéficier des efforts des autres sans contribuer lui-même",
+          "Les entreprises qui contournent les taxes environnementales",
+          "Les pays qui refusent toute aide internationale"
+        ],
+        correct: 1,
+        points: 150,
+        feedback: "Le free rider illustre le principal obstacle à la production de BPM : chaque État est tenté de profiter des efforts collectifs sans supporter le coût de la transition. C'est pourquoi des accords contraignants et des institutions de coordination sont indispensables."
+      },
+      {
+        type: "qcm",
+        text: "Lequel de ces exemples est un BPM naturel (et non un BPM d'origine humaine ou un résultat politique global) ?",
+        options: [
+          "Les connaissances scientifiques",
+          "La stabilité financière internationale",
+          "La biodiversité et les forêts tropicales",
+          "Les technologies médicales"
+        ],
+        correct: 2,
+        points: 140,
+        feedback: "Le PNUD distingue trois catégories de BPM : naturels (climat, biodiversité, forêts, océans), d'origine humaine (connaissances, technologies médicales, recherche fondamentale), et résultats politiques globaux (paix, santé mondiale, stabilité financière)."
+      },
+      {
+        type: "qcm",
+        text: "Pourquoi les BPM ne peuvent-ils pas être produits par un seul État ?",
+        options: [
+          "Parce qu'ils sont trop coûteux pour un seul pays",
+          "Parce que leurs bénéfices dépassent les frontières nationales et nécessitent une action collective coordonnée",
+          "Parce que les institutions internationales ont le monopole de leur gestion",
+          "Parce que les États n'ont pas les compétences techniques pour les produire seuls"
+        ],
+        correct: 1,
+        points: 140,
+        feedback: "Les BPM transcendent les frontières : aucun pays ne peut, seul, préserver le climat, enrayer la perte de biodiversité ou garantir la paix mondiale. Leurs bénéfices profitant à tous, la coopération internationale est indispensable pour éviter la sous-production liée au free rider."
+      },
+      {
+        type: "input",
+        text: "Lors de la COP29 (Bakou, 2024), quel montant annuel les pays riches se sont-ils engagés à mobiliser d'ici 2035 ? (ex : « 300 milliards de dollars »)",
+        answer: ["300 milliards de dollars", "300 milliards", "300 milliards $", "300"],
+        points: 150,
+        feedback: "À la COP29 (Bakou, novembre 2024), les pays développés ont accepté de mobiliser 300 milliards de dollars par an d'ici 2035 via le Fonds vert pour le climat, pour aider les pays en développement à financer leur transition écologique."
+      },
+      {
+        type: "qcm",
+        text: "Lors de la COP28 (Dubaï, décembre 2023), quelle décision historique a été actée pour la première fois ?",
+        options: [
+          "La création d'une taxe mondiale sur les émissions de CO₂",
+          "La nécessité de « s'éloigner » des combustibles fossiles",
+          "L'interdiction totale du charbon d'ici 2030",
+          "La réduction de 50 % des émissions de méthane d'ici 2025"
+        ],
+        correct: 1,
+        points: 150,
+        feedback: "À la COP28, les États ont acté pour la première fois la nécessité de « s'éloigner » des combustibles fossiles. Un accord sur les pertes et dommages pour les pays vulnérables au changement climatique a également été finalisé."
+      },
+      {
+        type: "qcm",
+        text: "En quelle année les États-Unis se sont-ils retirés une première fois de l'Accord de Paris, illustrant la fragilité des engagements sur les BPM climatiques ?",
+        options: ["2017", "2018", "2019", "2020"],
+        correct: 3,
+        points: 140,
+        feedback: "Sous l'administration Trump, les États-Unis se sont retirés de l'Accord de Paris en 2020, avant d'y revenir en 2021 sous Biden. En 2025, une seconde sortie a été annoncée — illustrant la fragilité des engagements en matière de BPM climatiques."
+      },
+      {
+        type: "qcm",
+        text: "Le Protocole de Montréal est un exemple de coopération internationale visant à protéger :",
+        options: [
+          "La biodiversité marine",
+          "Les forêts tropicales",
+          "La couche d'ozone",
+          "Les ressources en eau douce"
+        ],
+        correct: 2,
+        points: 130,
+        feedback: "Le Protocole de Montréal est un accord multilatéral contraignant visant à protéger la couche d'ozone, en réglementant les substances qui l'appauvrissent. Il est cité comme l'un des accords environnementaux internationaux les plus efficaces."
+      },
+      {
+        type: "matching",
+        text: "Associez chaque accord ou institution à son rôle dans la coopération internationale :",
+        pairs: [
+          { left: "Accord de Paris (2015)", right: "Engagement climatique multilatéral contraignant" },
+          { left: "Protocole de Montréal", right: "Protection de la couche d'ozone" },
+          { left: "PNUD", right: "Coordination du développement humain (ONU)" },
+          { left: "Fonds vert pour le climat", right: "Financement de la transition dans les pays en développement" }
+        ],
+        points: 160,
+        feedback: "La coopération internationale mobilise des accords contraignants (Accord de Paris, Protocole de Montréal), des institutions de coordination (PNUD, PNUE, OMS) et des mécanismes financiers dédiés (Fonds vert pour le climat)."
+      },
+      {
+        type: "qcm",
+        text: "Quelle est la catégorie de BPM dont le risque principal est la SOUS-PRODUCTION liée à une action collective insuffisante ?",
+        options: [
+          "Les BPM naturels (climat, biodiversité)",
+          "Les BPM d'origine humaine (connaissances, technologies)",
+          "Les résultats politiques globaux (paix, stabilité financière)",
+          "Les trois catégories sont également concernées par la sous-production"
+        ],
+        correct: 2,
+        points: 150,
+        feedback: "Selon le PNUD : les BPM naturels souffrent de surutilisation, les BPM d'origine humaine de sous-utilisation par les pays les moins avancés, et les résultats politiques globaux (paix, santé mondiale, stabilité financière) de sous-production liée à une action collective insuffisante."
+      }
+    ]
+  },
+
+  // ── SALLE 4 ── Transition écologique & ESS (Chap. 10 – Parties II, III, IV)
+  {
+    id: 4,
+    title: "Transition & ESS",
+    subtitle: "Chapitre 10 — Parties II, III & IV",
+    intro: "Instruments de l'État, économie circulaire, collaborative et ESS : les nouveaux modèles de production et de consommation n'auront plus de secrets.",
+    questions: [
+      {
+        type: "qcm",
+        text: "Le Pacte vert européen (Green New Deal) vise la neutralité carbone de l'UE pour :",
+        options: ["2030", "2035", "2050", "2100"],
+        correct: 2,
+        points: 120,
+        feedback: "Le Pacte vert européen, présenté en décembre 2019, fixe la neutralité carbone de l'UE d'ici 2050, avec un objectif intermédiaire renforcé de -55 % d'émissions de GES d'ici 2030 (« Fit for 55 »), renforcé par la loi européenne sur le climat de 2021."
+      },
+      {
+        type: "matching",
+        text: "Associez chaque instrument de la transition écologique à son exemple concret :",
+        pairs: [
+          { left: "Réglementation", right: "Interdiction progressive des plastiques à usage unique" },
+          { left: "Taxation / prix carbone", right: "Marché européen du carbone (SEQE-UE)" },
+          { left: "Aides financières", right: "MaPrimeRénov' et bonus véhicule électrique" }
+        ],
+        points: 150,
+        feedback: "Les trois instruments publics de la transition écologique : la réglementation interdit ou encadre, la fiscalité renchérit le coût des activités polluantes (prix du CO₂ autour de 60-70 €/tonne en 2024), et les aides financières encouragent les comportements vertueux."
+      },
+      {
+        type: "qcm",
+        text: "Quelle est la séquence du modèle économique LINÉAIRE traditionnel ?",
+        options: [
+          "Produire → Réutiliser → Recycler → Valoriser",
+          "Extraire → Fabriquer → Consommer → Jeter",
+          "Concevoir → Partager → Réparer → Vendre",
+          "Innover → Produire → Distribuer → Recycler"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "Le modèle linéaire traditionnel suit la séquence : extraire → fabriquer → consommer → jeter. L'économie circulaire vise à rompre ce cycle en allongeant la durée de vie des produits et en réintégrant les déchets dans de nouveaux cycles de production."
+      },
+      {
+        type: "input",
+        text: "Quelle part des émissions mondiales de GES les activités de production représentent-elles lors de l'extraction et de la fabrication des produits ? (ex : « 62 % »)",
+        answer: ["62 %", "62%", "62 pourcent", "environ 62 %"],
+        points: 140,
+        feedback: "Les activités de production contribuent à hauteur de 62 % des émissions mondiales de GES lors de l'extraction et de la fabrication. L'économie circulaire est donc un levier majeur de la transition écologique en réduisant cette pression à la source."
+      },
+      {
+        type: "input",
+        text: "En France, depuis décembre 2022, le « bonus réparation » offre une réduction de combien d'euros sur la réparation d'appareils électroniques ? (ex : « 10 à 45 euros »)",
+        answer: ["10 à 45 euros", "10 à 45 €", "10 à 45€", "de 10 à 45 euros", "de 10 à 45 €"],
+        points: 130,
+        feedback: "Instauré le 15 décembre 2022, le bonus réparation offre une réduction de 10 à 45 € sur la réparation d'appareils chez des réparateurs labellisés « QualiRépar ». Il s'accompagne depuis 2021 d'un indice de réparabilité obligatoire sur les appareils électroniques."
+      },
+      {
+        type: "qcm",
+        text: "L'économie de la fonctionnalité consiste à :",
+        options: [
+          "Vendre des biens à prix réduit pour favoriser leur accessibilité",
+          "Vendre un service (la mobilité) plutôt qu'un bien (la voiture), incitant le producteur à concevoir des produits durables",
+          "Recycler 100 % des déchets industriels",
+          "Produire localement pour réduire l'empreinte carbone du transport"
+        ],
+        correct: 1,
+        points: 140,
+        feedback: "L'économie de la fonctionnalité vend l'usage d'un bien plutôt que le bien lui-même. Exemple : vendre « la mobilité » (abonnement voiture) plutôt que la voiture. Le producteur est alors incité à concevoir des produits durables et réparables."
+      },
+      {
+        type: "qcm",
+        text: "L'économie collaborative se distingue de l'économie traditionnelle par :",
+        options: [
+          "L'utilisation exclusive d'entreprises publiques pour produire des services",
+          "La mutualisation et le partage de biens ou services entre particuliers via des plateformes numériques",
+          "La suppression totale de la propriété privée des biens",
+          "Un modèle basé sur le troc sans usage de monnaie"
+        ],
+        correct: 1,
+        points: 130,
+        feedback: "L'économie collaborative désigne des pratiques entre particuliers, facilitées par le numérique, permettant la mutualisation et le partage (BlaBlaCar, Airbnb, Leboncoin…). Elle contribue à l'économie circulaire en réduisant le nombre de biens produits."
+      },
+      {
+        type: "qcm",
+        text: "Dans l'ESS française, quelle catégorie d'acteurs représente environ 80 % des emplois du secteur ?",
+        options: ["Les coopératives (SCOP)", "Les mutuelles", "Les associations", "Les fondations"],
+        correct: 2,
+        points: 140,
+        feedback: "Les associations constituent le premier employeur de l'ESS avec environ 80 % des emplois du secteur. L'ESS représente au total environ 2,5 millions de salariés, soit 14 % de l'emploi salarié privé en France (données 2024)."
+      },
+      {
+        type: "qcm",
+        text: "Dans une SCOP (Société coopérative et participative), quel est le principe de gouvernance fondamental ?",
+        options: [
+          "Un actionnaire = une voix (proportionnel au capital détenu)",
+          "Une personne = une voix (gouvernance démocratique)",
+          "La direction générale détient seule le droit de vote",
+          "Les clients et salariés partagent à égalité le droit de vote"
+        ],
+        correct: 1,
+        points: 140,
+        feedback: "Dans une SCOP, la propriété est majoritairement détenue par les salariés, qui participent aux décisions selon le principe « une personne = une voix » — contrairement aux sociétés classiques où le vote est proportionnel au capital détenu."
+      },
+      {
+        type: "input",
+        text: "En quelle année la loi française a-t-elle conféré à l'ESS une définition juridique officielle ? (ex : « 2014 »)",
+        answer: ["2014", "en 2014"],
+        points: 130,
+        feedback: "C'est la loi du 31 juillet 2014 relative à l'ESS (dite « loi Hamon ») qui donne à l'ESS une existence juridique propre en France, définissant ses acteurs, ses principes (lucrativité limitée, gouvernance démocratique, utilité sociale) et créant des statuts comme la SCIC."
+      }
+    ]
+  }  ,
+
+  // ── SALLE BOSS ── Cas concret : Patagonia (Chap. 9 & 10 croisés)
+  {
+    id: 5,
+    title: "BOSS — Le cas Patagonia",
+    subtitle: "Chapitres 9 & 10 — Cas concret",
+    intro: "Patagonia, marque américaine de vêtements outdoor fondée en 1973, est devenue une référence mondiale de l'entreprise durable. En 2022, son fondateur Yvon Chouinard a cédé 100 % du capital à deux organisations à but non lucratif. Mobilisez l'ensemble de vos connaissances.",
+    questions: [
+      {
+        type: "qcm",
+        text: "En 2022, Yvon Chouinard a transféré la propriété de Patagonia à une organisation à but non lucratif. Du point de vue des chapitres 9 et 10, cette décision illustre principalement :",
+        options: [
+          "La maximisation du profit à long terme par optimisation fiscale",
+          "La priorité donnée à l'utilité sociale et environnementale sur la lucrativité — un principe fondateur de l'ESS",
+          "Une stratégie de croissance externe par acquisition",
+          "L'application du principe de non-rivalité des biens publics mondiaux"
+        ],
+        correct: 1,
+        points: 180,
+        feedback: "En cédant son entreprise à une fondation (Holdfast Collective), Chouinard a placé la mission environnementale au-dessus du profit. Cela illustre le principe fondateur de l'ESS : lucrativité limitée, utilité sociale et environnementale, gouvernance au service d'une mission d'intérêt général."
+      },
+      {
+        type: "qcm",
+        text: "Patagonia pratique le programme « Worn Wear » : réparer, revendre et recycler ses propres vêtements usagés. Quel concept du chapitre 10 cela illustre-t-il directement ?",
+        options: [
+          "L'économie de la fonctionnalité",
+          "La coopération internationale pour les biens publics mondiaux",
+          "L'économie circulaire (allongement de la durée de vie des produits, réintégration dans les cycles de production)",
+          "La transition énergétique vers les énergies renouvelables"
+        ],
+        correct: 2,
+        points: 160,
+        feedback: "Le programme « Worn Wear » est un exemple canonique d'économie circulaire : au lieu du modèle linéaire (extraire → fabriquer → consommer → jeter), Patagonia allonge la durée de vie de ses produits via la réparation, la revente et le recyclage. Cela réduit l'extraction de nouvelles ressources."
+      },
+      {
+        type: "qcm",
+        text: "Patagonia reverse 1 % de son chiffre d'affaires à des organisations environnementales via « 1% for the Planet ». Sur le plan du chapitre 9, cela peut être analysé comme une contribution à :",
+        options: [
+          "La réduction de la Productivité Globale des Facteurs (PGF)",
+          "La production de biens publics mondiaux environnementaux (biodiversité, climat)",
+          "L'augmentation du facteur capital physique de l'entreprise",
+          "La pauvreté relative des salariés du secteur textile"
+        ],
+        correct: 1,
+        points: 170,
+        feedback: "En finançant des organisations de protection de l'environnement, Patagonia contribue à la production de biens publics mondiaux naturels (biodiversité, lutte contre le changement climatique). Ces BPM sont non rivaux et non excluables — leur préservation bénéficie à l'humanité entière."
+      },
+      {
+        type: "input",
+        text: "Patagonia défend l'idée que la croissance économique doit être compatible avec les limites planétaires sur le long terme. Quel terme du chapitre 10 désigne ce type de croissance ? (répondre : « croissance soutenable »)",
+        answer: ["croissance soutenable", "la croissance soutenable", "une croissance soutenable"],
+        points: 150,
+        feedback: "La croissance soutenable désigne une croissance économique compatible avec les limites planétaires, capable d'être maintenue sur le long terme sans épuiser les ressources naturelles ni dégrader les écosystèmes. C'est exactement le modèle défendu par Patagonia."
+      },
+      {
+        type: "qcm",
+        text: "La slogan de Patagonia « Don't Buy This Jacket » (2011) invitait les consommateurs à réfléchir avant d'acheter. En termes de chapitre 10, cette démarche s'inscrit dans :",
+        options: [
+          "Une stratégie de taxation / prix carbone pour renchérir le coût des achats",
+          "Une promotion de nouveaux modes de consommation visant à réduire la demande et allonger la durée de vie des produits",
+          "Un instrument réglementaire de l'État interdisant la surconsommation",
+          "Un exemple de bien public mondial d'origine humaine"
+        ],
+        correct: 1,
+        points: 160,
+        feedback: "Cette campagne illustre la promotion de nouveaux modes de consommation : préférer l'usage durable à la possession répétée, réparer plutôt que remplacer. C'est l'esprit de l'économie circulaire côté consommateurs — et un exemple de ce que l'indice de réparabilité (France, 2021) cherche à encourager."
+      },
+      {
+        type: "matching",
+        text: "Associez chaque action de Patagonia au concept des chapitres 9 ou 10 qu'elle illustre :",
+        pairs: [
+          { left: "Cession à une fondation non lucrative (2022)", right: "ESS — lucrativité limitée, utilité sociale" },
+          { left: "Programme Worn Wear (réparation/revente)", right: "Économie circulaire" },
+          { left: "1 % du CA reversé à l'environnement", right: "Production de biens publics mondiaux" },
+          { left: "Éco-conception des produits (matières recyclées)", right: "Nouveaux modes de production durables" }
+        ],
+        points: 200,
+        feedback: "Patagonia est un cas d'école qui croise tous les concepts du programme : ESS (priorité à l'utilité sociale), économie circulaire (Worn Wear, éco-conception), BPM (1 % for the Planet), et transition écologique. C'est un exemple rare d'entreprise qui articule les trois piliers du développement durable."
+      },
+      {
+        type: "qcm",
+        text: "Patagonia mesure son impact non seulement par son chiffre d'affaires, mais aussi par son empreinte carbone et sa contribution à la biodiversité. Quel indicateur du chapitre 9 s'apparente le plus à cette approche multidimensionnelle ?",
+        options: [
+          "Le taux de croissance du PIB",
+          "La Productivité Globale des Facteurs (PGF)",
+          "L'IDH (Indice de Développement Humain)",
+          "Le PIB vert ou l'empreinte écologique"
+        ],
+        correct: 3,
+        points: 160,
+        feedback: "Le PIB vert corrige la richesse créée du coût des dégradations environnementales. L'empreinte écologique mesure la pression exercée sur les ressources naturelles. Ces deux indicateurs dépassent la seule dimension économique du PIB — comme Patagonia dépasse la seule logique du chiffre d'affaires."
+      },
+      {
+        type: "qcm",
+        text: "Le modèle de Patagonia peut-il être qualifié de « développement durable » au sens du rapport Brundtland ? Quelle justification est la plus rigoureuse ?",
+        options: [
+          "Non, car Patagonia reste une entreprise privée qui vend des produits",
+          "Oui, car elle articule les trois piliers : économique (viable), environnemental (vivable) et social (équitable)",
+          "Non, car le développement durable ne s'applique qu'aux États et organisations internationales",
+          "Oui, mais uniquement pour le pilier environnemental"
+        ],
+        correct: 1,
+        points: 170,
+        feedback: "Patagonia articule bien les trois piliers : économique (l'entreprise est rentable et crée de la valeur), environnemental (éco-conception, circularité, 1 % for the Planet) et social (conditions de travail, mission sociale de la fondation). C'est une illustration concrète de la définition Brundtland appliquée au monde de l'entreprise."
+      },
+      {
+        type: "input",
+        text: "Patagonia milite activement pour que les États adoptent des lois contraignantes sur l'environnement, car elle estime qu'une entreprise seule ne peut pas protéger le climat. Quel concept du chapitre 10 justifie cette position ? (répondre : « coopération internationale » ou « biens publics mondiaux »)",
+        answer: ["coopération internationale", "la coopération internationale", "biens publics mondiaux", "les biens publics mondiaux", "bpm", "cooperation internationale"],
+        points: 150,
+        feedback: "Le climat est un bien public mondial : non rival et non excluable. Aucune entreprise — même Patagonia — ne peut seule le préserver. C'est pourquoi la coopération internationale (Accord de Paris, COP, Fonds vert) est indispensable : sans action collective coordonnée, le problème du free rider conduit à une sous-production de protection climatique."
+      },
+      {
+        type: "qcm",
+        text: "QUESTION FINALE — Synthèse. Quel est le principal apport du modèle Patagonia pour penser la relation entre croissance et développement durable ?",
+        options: [
+          "Il prouve que la croissance économique est incompatible avec la protection de l'environnement",
+          "Il montre qu'il est possible de concilier performance économique, transition écologique et utilité sociale — incarnant ainsi la croissance soutenable",
+          "Il démontre que seules les entreprises de l'ESS peuvent être durables",
+          "Il illustre que la réglementation étatique est le seul levier efficace de la transition écologique"
+        ],
+        correct: 1,
+        points: 200,
+        feedback: "Patagonia démontre qu'une entreprise peut être économiquement viable tout en plaçant la transition écologique et l'utilité sociale au cœur de son modèle. C'est une incarnation de la croissance soutenable — ni anti-croissance, ni croissance à tout prix, mais une croissance repensée dans ses finalités et ses modalités, articulant les chapitres 9 et 10 dans un cas concret."
+      }
+    ]
+  }
+];
+
+
+// ═══════════════════════════════════════
+// ÉTAT
+// ═══════════════════════════════════════
+const G = {
+  name: '',
+  score: 0, lives: 3,
+  roomIdx: 0, qIdx: 0,
+  gameOver: false,
+  lifeBoughtThisRoom: false,
+  roomScores: [],
+  _roomScore: 0,
+  matchState: {}
+};
+
+const LIFE_COST = 50;
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function livesHTML(n){
+  return '❤'.repeat(Math.max(0,n)) + '🖤'.repeat(Math.max(0,3-n));
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function updateHUD(){
+  document.getElementById('hud-score').textContent = G.score;
+  document.getElementById('hud-lives').textContent = livesHTML(G.lives);
+  document.getElementById('hud-room').textContent = (G.roomIdx+1)+'/'+ROOMS.length;
+  const dots = document.getElementById('hud-progress');
+  dots.innerHTML = ROOMS.map((_,i)=>{
+    let c='prog-dot';
+    if(i===ROOMS.length-1)c+=' boss';
+    if(i<G.roomIdx)c+=' done';
+    else if(i===G.roomIdx)c+=' cur';
+    return '<div class="'+c+'" title="Salle '+(i+1)+'"></div>';
+  }).join('');
+  const buyBtn = document.getElementById('buy-life-btn');
+  if(buyBtn) buyBtn.style.display = (G.lives<3 && !G.lifeBoughtThisRoom && G.score>=LIFE_COST) ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════
+// DÉMARRAGE
+// ═══════════════════════════════════════
+function startGame(){
+  const n = document.getElementById('inp-name').value.trim();
+  if(!n){ alert('Merci de saisir votre prénom et nom.'); return; }
+  G.name = n;
+  G.score=0; G.lives=3; G.roomIdx=0; G.qIdx=0;
+  G.gameOver=false; G.lifeBoughtThisRoom=false; G.roomScores=[]; G.matchState={}; G._roomScore=0;
+  renderRoom();
+  showScreen('s-game');
+}
+function restartGame(){
+  document.getElementById('go-overlay').classList.remove('show');
+  showScreen('s-home');
+}
+
+// ═══════════════════════════════════════
+// RENDU SALLE
+// ═══════════════════════════════════════
+function renderRoom(){
+  G.lifeBoughtThisRoom=false;
+  G.qIdx=0;
+  G._roomScore=0;
+  const room = ROOMS[G.roomIdx];
+  const isBoss = G.roomIdx === ROOMS.length-1;
+  updateHUD();
+  const maxPts = room.questions.reduce((s,q)=>s+q.points,0);
+  let html = '<div class="room-header"' + (isBoss?' style="border-color:var(--red);background:rgba(255,26,62,.04);"':'') + '>'
+    +'<div class="room-eyebrow">SALLE '+(G.roomIdx+1)+' / '+ROOMS.length+' — '+room.subtitle+'</div>'
+    +'<div class="room-title">'+room.title+'</div>'
+    +'<p class="room-intro">'+room.intro+'</p>'
+    +'</div>';
+
+  room.questions.forEach((q,i)=>{
+    html += buildPuzzle(q,i);
+  });
+
+  html += '<div class="room-footer" id="room-footer">'
+    +'<div class="room-score-line">SALLE '+(G.roomIdx+1)+' DÉVERROUILLÉE — Score actuel : <span id="footer-score">'+G.score+'</span> pts</div>'
+    +'<button class="btn-primary" onclick="nextRoom()">'
+    +(G.roomIdx<ROOMS.length-1 ? 'SALLE SUIVANTE →' : 'TERMINER')
+    +'</button></div>';
+
+  document.getElementById('game-content').innerHTML = html;
+  activateQ(0);
+}
+
+function buildPuzzle(q,i){
+  let body='';
+  if(q.type==='qcm'){
+    body='<div class="opts" id="opts-'+i+'">'
+      +q.options.map((o,j)=>'<button class="opt" id="opt-'+i+'-'+j+'" onclick="answerQCM('+i+','+j+')">'
+        +'<span class="opt-key">'+String.fromCharCode(65+j)+'</span>'+o+'</button>').join('')
+      +'</div>';
+  } else if(q.type==='input'){
+    body='<div class="inp-row">'
+      +'<input class="puz-input" id="inp-'+i+'" placeholder="Votre réponse…" onkeydown="if(event.key===\'Enter\')answerInput('+i+')">'
+      +'<button class="btn-val" id="btn-'+i+'" onclick="answerInput('+i+')">VALIDER</button>'
+      +'</div>';
+  } else if(q.type==='matching'){
+    const shuffL=[...q.pairs.map((p,j)=>({...p,idx:j}))].sort(()=>Math.random()-.5);
+    const shuffR=[...q.pairs.map((p,j)=>({...p,idx:j}))].sort(()=>Math.random()-.5);
+    body='<div class="match-grid">'
+      +'<div class="match-col"><div class="match-col-title">Terme</div>'
+      +shuffL.map(p=>'<div class="match-item" id="ml-'+i+'-'+p.idx+'" onclick="selectMatch('+i+','+p.idx+',\'left\')">'+p.left+'</div>').join('')
+      +'</div>'
+      +'<div class="match-col"><div class="match-col-title">Définition / Exemple</div>'
+      +shuffR.map(p=>'<div class="match-item" id="mr-'+i+'-'+p.idx+'" onclick="selectMatch('+i+','+p.idx+',\'right\')">'+p.right+'</div>').join('')
+      +'</div></div>'
+      +'<button class="btn-val" id="btn-'+i+'" onclick="validateMatching('+i+')" style="margin-top:10px;">VALIDER LES ASSOCIATIONS</button>';
+  }
+  return '<div class="puzzle locked" id="puz-'+i+'">'
+    +'<div class="puz-meta"><span>Q'+(i+1)+' / '+ROOMS[G.roomIdx].questions.length+'</span><span class="pts">'+q.points+' pts</span></div>'
+    +'<div class="puz-q">'+q.text+'</div>'
+    +body
+    +'<div class="feedback" id="fb-'+i+'"></div>'
+    +'</div>';
+}
+
+function activateQ(i){
+  const el = document.getElementById('puz-'+i);
+  if(!el) return;
+  el.classList.remove('locked');
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+// ═══════════════════════════════════════
+// RÉPONSES
+// ═══════════════════════════════════════
+function answerQCM(qi,chosen){
+  if(G.gameOver)return;
+  const q=ROOMS[G.roomIdx].questions[qi];
+  document.querySelectorAll('#opts-'+qi+' .opt').forEach(o=>o.disabled=true);
+  const ok=chosen===q.correct;
+  document.getElementById('opt-'+qi+'-'+chosen).classList.add(ok?'sel-ok':'sel-ko');
+  if(!ok)document.getElementById('opt-'+qi+'-'+q.correct).classList.add('reveal');
+  handleResult(qi,ok,q.points,q.feedback);
+}
+function answerInput(qi){
+  if(G.gameOver)return;
+  const q=ROOMS[G.roomIdx].questions[qi];
+  const inp=document.getElementById('inp-'+qi);
+  if(!inp||inp.disabled)return;
+  const val=inp.value.trim().toLowerCase().replace(/\s+/g,' ');
+  const ok=q.answer.some(a=>a.toLowerCase().replace(/\s+/g,' ')===val);
+  inp.disabled=true;
+  const btn=document.getElementById('btn-'+qi);
+  if(btn)btn.disabled=true;
+  handleResult(qi,ok,q.points,q.feedback);
+}
+
+let mState={};
+function selectMatch(qi,idx,side){
+  if(G.gameOver)return;
+  if(!mState[qi])mState[qi]={left:null,right:null};
+  const ms=mState[qi];
+  if(side==='left'){
+    if(ms.left!==null){const p=document.getElementById('ml-'+qi+'-'+ms.left);if(p)p.classList.remove('m-sel');}
+    ms.left=idx;
+    document.getElementById('ml-'+qi+'-'+idx).classList.add('m-sel');
+  } else {
+    if(ms.right!==null){const p=document.getElementById('mr-'+qi+'-'+ms.right);if(p)p.classList.remove('m-sel');}
+    ms.right=idx;
+    document.getElementById('mr-'+qi+'-'+idx).classList.add('m-sel');
+  }
+}
+function validateMatching(qi){
+  if(G.gameOver)return;
+  const q=ROOMS[G.roomIdx].questions[qi];
+  const btn=document.getElementById('btn-'+qi);
+  if(btn)btn.disabled=true;
+  q.pairs.forEach((_,j)=>{
+    const l=document.getElementById('ml-'+qi+'-'+j);
+    const r=document.getElementById('mr-'+qi+'-'+j);
+    if(l){l.classList.add('m-ok','m-done');}
+    if(r){r.classList.add('m-ok','m-done');}
+  });
+  showFB(qi,true,'<strong>✓ Associations correctes !</strong><br>'+q.feedback);
+  G.score+=q.points; G._roomScore+=q.points; updateHUD();
+  const fs=document.getElementById('footer-score');if(fs)fs.textContent=G.score;
+  nextQ(qi);
+}
+
+function handleResult(qi,ok,pts,fb){
+  if(ok){
+    showFB(qi,true,'<strong>✓ Bonne réponse !</strong> +'+pts+' pts<br><br>'+fb);
+    G.score+=pts; G._roomScore+=pts; updateHUD();
+    const fs=document.getElementById('footer-score');if(fs)fs.textContent=G.score;
+    document.getElementById('puz-'+qi).classList.add('ok');
+    nextQ(qi);
+  } else {
+    showFB(qi,false,'<strong>✗ Mauvaise réponse.</strong><br><br>'+fb);
+    document.getElementById('puz-'+qi).classList.add('ko');
+    G.lives--;
+    updateHUD();
+    if(G.lives<=0) triggerGO(qi);
+    else nextQ(qi);
+  }
+}
+function showFB(qi,ok,msg){
+  const fb=document.getElementById('fb-'+qi);
+  if(!fb)return;
+  fb.className='feedback '+(ok?'ok':'ko')+' show';
+  fb.innerHTML=msg;
+}
+function nextQ(qi){
+  const nxt=qi+1;
+  const room=ROOMS[G.roomIdx];
+  if(nxt<room.questions.length){
+    setTimeout(()=>activateQ(nxt),400);
+    G.qIdx=nxt;
+  } else {
+    G.roomScores[G.roomIdx]=G._roomScore||0;
+    setTimeout(()=>{
+      const f=document.getElementById('room-footer');
+      const fs=document.getElementById('footer-score');
+      if(fs)fs.textContent=G.score;
+      if(f){f.classList.add('show');f.scrollIntoView({behavior:'smooth',block:'center'});}
+    },500);
+  }
+}
+
+// ═══════════════════════════════════════
+// VIES
+// ═══════════════════════════════════════
+function triggerGO(qi){
+  if(G.lifeBoughtThisRoom){
+    confirmGameOver(); return;
+  }
+  const overlay=document.getElementById('go-overlay');
+  document.getElementById('go-text').textContent=
+    'Vous n\'avez plus de vies. Racheter une vie pour −'+LIFE_COST+' pts ?';
+  document.getElementById('go-buy-btn').style.display= G.score>=LIFE_COST ? 'block':'none';
+  overlay.classList.add('show');
+  G._pendingQi=qi;
+}
+function buyLifeOverlay(){
+  G.lifeBoughtThisRoom=true;
+  G.lives=1;
+  G.score=Math.max(0,G.score-LIFE_COST);
+  document.getElementById('go-overlay').classList.remove('show');
+  updateHUD();
+  nextQ(G._pendingQi);
+}
+function buyLife(){
+  if(G.lifeBoughtThisRoom||G.lives>=3||G.score<LIFE_COST)return;
+  G.lifeBoughtThisRoom=true;
+  G.lives=Math.min(3,G.lives+1);
+  G.score=Math.max(0,G.score-LIFE_COST);
+  updateHUD();
+}
+function confirmGameOver(){
+  document.getElementById('go-overlay').classList.remove('show');
+  G.gameOver=true;
+  document.querySelectorAll('button,input,select').forEach(e=>e.disabled=true);
+  document.getElementById('s-lose').querySelector('#lose-score-val').innerHTML=
+    G.score+' <span>pts</span>';
+  document.getElementById('lose-name').value=G.name;
+  showScreen('s-lose');
+}
+
+// ═══════════════════════════════════════
+// SALLE SUIVANTE / VICTOIRE
+// ═══════════════════════════════════════
+function nextRoom(){
+  G.roomIdx++;
+  if(G.roomIdx>=ROOMS.length) showVictory();
+  else { renderRoom(); window.scrollTo({top:0}); }
+}
+function showVictory(){
+  const total=ROOMS.reduce((s,r)=>s+r.questions.reduce((ps,q)=>ps+q.points,0),0);
+  const pct=total>0?Math.round(G.score/total*100):0;
+  let grade,gClass,msg;
+  if(pct>=85){grade='A';gClass='grade-A';msg='Excellent ! Vous maîtrisez parfaitement les chapitres 9 et 10. Une vraie référence en développement durable !';}
+  else if(pct>=70){grade='B';gClass='grade-B';msg='Très bon niveau ! Quelques notions à consolider, mais les bases sont solides.';}
+  else if(pct>=55){grade='C';gClass='grade-C';msg='Bon résultat ! Revoir les indicateurs et les instruments de la transition écologique.';}
+  else{grade='D';gClass='grade-D';msg='Des lacunes à combler. Reprenez le cours section par section — vous progresserez !';}
+
+  document.getElementById('win-score-val').innerHTML=G.score+' <span>pts / '+total+' max ('+pct+' %)</span>';
+  const gb=document.getElementById('win-grade');
+  gb.textContent=grade; gb.className='grade-badge '+gClass;
+  document.getElementById('win-msg').textContent=msg;
+
+  let det='';
+  ROOMS.forEach((r,i)=>{
+    const max=r.questions.reduce((s,q)=>s+q.points,0);
+    det+='<div class="dl"><span>'+r.title+'</span><strong>'+(G.roomScores[i]||'?')+'/'+max+' pts</strong></div>';
+  });
+  det+='<div class="dl" style="margin-top:6px;border-top:1px solid var(--border);padding-top:6px;">'
+    +'<span>TOTAL</span><strong>'+G.score+' pts</strong></div>';
+  document.getElementById('win-details').innerHTML=det;
+  document.getElementById('win-name').value=G.name;
+
+  showScreen('s-win');
+  fetchAI(grade, pct);
+}
+
+// ═══════════════════════════════════════
+// IA ENCOURAGEMENT
+// ═══════════════════════════════════════
+async function fetchAI(grade, pct){
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:180,
+        messages:[{role:'user',content:
+          'L\'élève '+G.name+' vient de réussir un escape game sur la croissance économique et le développement durable (chapitres 9 et 10, Terminale STMG) avec un score de '+G.score+' points et la note '+grade+' ('+pct+' %). Rédige un message d\'encouragement court et personnalisé (2-3 phrases) lié aux notions du cours. Pas de titre, juste le message.'}]
+      })
+    });
+    const d=await resp.json();
+    const txt=d?.content?.[0]?.text||'';
+    if(txt){const b=document.getElementById('ai-box');b.textContent=txt;b.classList.add('show');}
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════
+// ENVOI SCORE
+// ═══════════════════════════════════════
+function buildBody(win){
+  const total=ROOMS.reduce((s,r)=>s+r.questions.reduce((ps,q)=>ps+q.points,0),0);
+  const pct=total>0?Math.round(G.score/total*100):0;
+  let det='';
+  ROOMS.forEach((r,i)=>{
+    const max=r.questions.reduce((s,q)=>s+q.points,0);
+    det+='  - '+r.title+' : '+(G.roomScores[i]||'?')+'/'+max+' pts\n';
+  });
+  return 'Bonjour M. Chaudronnier,\n\n'
+    +'Résultat ESCAPE GAME — Chapitres 9 & 10\n'
+    +'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    +'Élève     : '+G.name+'\n'
+    +'Score     : '+G.score+' / '+total+' pts ('+pct+' %)\n'
+    +'Résultat  : '+(win?'SUCCÈS — Toutes les salles complétées':'GAME OVER — Partie interrompue')+'\n'
+    +'Vies rest.: '+G.lives+'\n'
+    +'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
+    +'Détail par salle :\n'+det+'\n'
+    +'Cordialement,\n'+G.name;
+}
+function sendScore(){
+  const name=document.getElementById('win-name').value.trim()||G.name;
+  G.name=name;
+  const subj=encodeURIComponent('[Escape Ch.9-10] '+name+' — '+G.score+' pts');
+  window.location.href='mailto:c.chaudronnier@ejda.fr?subject='+subj+'&body='+encodeURIComponent(buildBody(true));
+}
+function sendScoreLose(){
+  const name=document.getElementById('lose-name').value.trim()||G.name;
+  G.name=name;
+  const subj=encodeURIComponent('[Escape Ch.9-10] '+name+' — '+G.score+' pts (GAME OVER)');
+  window.location.href='mailto:c.chaudronnier@ejda.fr?subject='+subj+'&body='+encodeURIComponent(buildBody(false));
+}
+</script>
+</body>
+</html>
