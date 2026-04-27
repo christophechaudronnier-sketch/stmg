@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM – Droit – Thème 6 : La responsabilité</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e45;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --red: #c0392b;
+    --green: #1e7d4a;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(13,27,42,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Source Serif 4', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 60px 0;
+  }
+
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, var(--navy-mid) 0%, #0a1520 100%);
+    border-bottom: 3px solid var(--gold);
+    padding: 32px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,168,76,0.15);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.1);
+  }
+  .header-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  header p {
+    font-size: 0.88rem;
+    color: rgba(245,240,232,0.65);
+    font-style: italic;
+  }
+
+  #student-form-screen {
+    width: 100%;
+    max-width: 540px;
+    margin: 40px auto 0;
+    padding: 0 20px;
+  }
+  .card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--gold); }
+  .rules-box {
+    background: rgba(201,168,76,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-top: 22px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.85);
+  }
+  .rules-box strong { color: var(--gold-light); }
+
+  .btn {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 13px 32px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    text-align: center;
+    width: 100%;
+  }
+  .btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  #quiz-screen { display: none; width: 100%; max-width: 720px; margin: 0 auto; padding: 30px 20px 0; }
+
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+    height: 6px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 24px;
+  }
+
+  .question-card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.22);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    box-shadow: var(--shadow);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .question-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .question-text {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--cream);
+    margin-bottom: 22px;
+  }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 13px 18px;
+    cursor: pointer;
+    text-align: left;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .choice-btn:hover:not(:disabled) {
+    background: rgba(201,168,76,0.1);
+    border-color: var(--gold);
+    transform: translateX(3px);
+  }
+  .choice-btn .letter {
+    min-width: 28px; height: 28px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    color: var(--gold);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .choice-btn.correct { background: rgba(30,125,74,0.2); border-color: #2ecc71; }
+  .choice-btn.correct .letter { background: rgba(30,125,74,0.3); border-color: #2ecc71; color: #2ecc71; }
+  .choice-btn.wrong { background: rgba(192,57,43,0.2); border-color: var(--red); }
+  .choice-btn.wrong .letter { background: rgba(192,57,43,0.3); border-color: var(--red); color: #e74c3c; }
+  .choice-btn:disabled { cursor: default; transform: none; }
+
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  .feedback.ok { background: rgba(30,125,74,0.15); border-left: 3px solid #2ecc71; color: #a8f0c6; }
+  .feedback.ko { background: rgba(192,57,43,0.15); border-left: 3px solid var(--red); color: #f5a9a2; }
+
+  .quiz-nav { display: flex; justify-content: flex-end; margin-top: 20px; }
+  .btn-next {
+    display: none;
+    padding: 11px 28px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-next:hover { background: var(--gold-light); }
+
+  #score-screen {
+    display: none;
+    width: 100%;
+    max-width: 680px;
+    margin: 40px auto 0;
+    padding: 0 20px 60px;
+  }
+  .score-hero {
+    background: linear-gradient(135deg, var(--navy-mid), #0a1520);
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+  .score-hero .grade-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .score-hero .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .score-hero .score-sub {
+    font-size: 0.9rem;
+    color: rgba(245,240,232,0.55);
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; line-height: 1; }
+  .stat-num.green { color: #2ecc71; }
+  .stat-num.red { color: #e74c3c; }
+  .stat-num.gray { color: rgba(245,240,232,0.4); }
+  .stat-label { font-size: 0.75rem; color: rgba(245,240,232,0.5); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  .detail-section { margin-top: 24px; }
+  .detail-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .detail-item.correct { border-color: rgba(46,204,113,0.2); }
+  .detail-item.wrong { border-color: rgba(231,76,60,0.2); }
+  .detail-item.skipped { border-color: rgba(245,240,232,0.1); }
+  .detail-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .detail-q { color: var(--cream); margin-bottom: 3px; }
+  .detail-ans { font-size: 0.8rem; }
+  .detail-ans .your-ans { color: rgba(245,240,232,0.55); }
+  .detail-ans .correct-ans { color: #a8f0c6; }
+
+  .email-section { margin-top: 28px; }
+  .email-section p {
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.6);
+    margin-bottom: 14px;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  @media(max-width: 500px) {
+    .card, .question-card { padding: 20px 16px; }
+    .stats-row { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Terminale STMG · Droit · Thème 6</div>
+  <h1>QCM — Qu'est-ce qu'être responsable ?</h1>
+  <p>Chapitre 3 : Les responsabilités civile et pénale &nbsp;·&nbsp; Chapitre 4 : Les régimes de responsabilité civile</p>
+</header>
+
+<!-- ÉCRAN 1 : NOM -->
+<div id="student-form-screen">
+  <div class="card">
+    <h2>Avant de commencer</h2>
+    <label for="student-name">Votre nom et prénom</label>
+    <input type="text" id="student-name" placeholder="Ex : Dupont Marie" />
+    <div class="rules-box">
+      <strong>Règles du QCM :</strong><br>
+      • 40 questions à choix unique<br>
+      • <strong>Bonne réponse :</strong> +0,5 point<br>
+      • <strong>Mauvaise réponse :</strong> −0,25 point (pénalité)<br>
+      • <strong>Abstention :</strong> 0 point<br>
+      • Note finale sur <strong>20 points</strong><br>
+      • Le détail de vos réponses sera envoyé par e-mail à votre professeur.
+    </div>
+    <button class="btn" onclick="startQuiz()">Commencer le QCM →</button>
+  </div>
+</div>
+
+<!-- ÉCRAN 2 : QUIZ -->
+<div id="quiz-screen">
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+  <div class="progress-meta">
+    <span id="q-counter">Question 1 / 40</span>
+    <span id="score-live">Score : 0 pt</span>
+  </div>
+  <div class="question-card" id="question-card">
+    <div class="question-badge" id="q-badge">Chapitre 3</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="quiz-nav">
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Question suivante →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÉCRAN 3 : RÉSULTATS -->
+<div id="score-screen">
+  <div class="score-hero">
+    <div class="grade-label">Résultat final</div>
+    <div class="score-num" id="final-note">—</div>
+    <div class="score-sub" id="final-sub"></div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num green" id="stat-ok">0</div><div class="stat-label">Correctes</div></div>
+      <div class="stat-item"><div class="stat-num red" id="stat-ko">0</div><div class="stat-label">Incorrectes</div></div>
+      <div class="stat-item"><div class="stat-num gray" id="stat-skip">0</div><div class="stat-label">Abstentions</div></div>
+    </div>
+  </div>
+
+  <div class="email-section">
+    <p>Cliquez ci-dessous pour envoyer automatiquement le détail de vos réponses à votre professeur. Votre messagerie s'ouvrira.</p>
+    <button class="btn" id="btn-email" onclick="sendEmail()">📧 Envoyer les résultats au professeur</button>
+  </div>
+
+  <div class="detail-section">
+    <h3>Détail de vos réponses</h3>
+    <div id="detail-list"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  // ── CHAPITRE 3 : Les responsabilités civile et pénale (20 questions) ──
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La responsabilité pénale a pour objectif principal de :",
+    opts: ["Réparer le dommage subi par la victime","Punir l'auteur de l'infraction et sanctionner l'atteinte à l'ordre public","Indemniser les victimes via un fonds de garantie","Remettre les parties dans leur état initial"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La responsabilité civile a pour objectif principal de :",
+    opts: ["Punir l'auteur du dommage","Réparation des dommages causés à autrui","Prononcer une peine d'emprisonnement","Sanctionner l'atteinte à l'ordre public"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Pour engager la responsabilité civile d'une personne, il faut prouver :",
+    opts: ["Une infraction pénale uniquement","Un fait générateur, un dommage et un lien de causalité entre les deux","Un dommage et une faute intentionnelle","Un contrat et son inexécution"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La responsabilité civile est dite contractuelle lorsque :",
+    opts: ["Le dommage résulte d'un accident de la circulation","Le dommage résulte de l'inexécution ou de la mauvaise exécution d'un contrat","L'auteur du dommage est un professionnel","Le dommage est causé par une chose"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La responsabilité civile extracontractuelle s'applique :",
+    opts: ["Uniquement entre professionnels","Pour les dommages ne résultant pas de l'inexécution d'un contrat","Uniquement en cas d'accident de la circulation","Lorsque le contrat est nul"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Une personne peut engager à la fois sa responsabilité civile et sa responsabilité pénale :",
+    opts: ["Jamais, elles s'excluent mutuellement","Toujours, dans tous les cas","Lorsque le fait générateur du dommage est également une infraction pénale","Uniquement si la victime le demande"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Un dommage matériel correspond à :",
+    opts: ["Une atteinte à l'intégrité physique d'une personne","Une atteinte aux biens d'une personne (perte subie ou gain manqué)","Un préjudice de nature immatérielle comme le préjudice d'affection","Une atteinte aux écosystèmes"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Un dommage corporel correspond à :",
+    opts: ["Une atteinte aux biens d'une personne","Une atteinte à l'intégrité physique d'une personne","Un préjudice d'affection","Une atteinte à l'environnement"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Un dommage moral correspond à :",
+    opts: ["Une perte financière directe","Une atteinte physique grave","Un dommage de nature immatérielle, tel que le préjudice d'affection","Une atteinte aux biens professionnels"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Le préjudice écologique est :",
+    opts: ["Un dommage causé uniquement par les entreprises industrielles","Toute atteinte importante aux écosystèmes ou aux bénéfices tirés par l'homme de la nature","Un dommage couvert uniquement par les assurances","Un dommage non réparable en droit français"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Pour être réparable, un dommage doit être légitime. Cela signifie que :",
+    opts: ["Le dommage doit être très important financièrement","L'intérêt de la victime est licite et juridiquement protégé","Le dommage doit avoir été constaté par un huissier","Le dommage doit être intentionnel"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Pour être réparable, un dommage doit être personnel. Cela signifie que :",
+    opts: ["Seul le préjudice financier est pris en compte","Seules les personnes ayant directement subi le dommage ou par ricochet peuvent obtenir réparation","Tout le monde peut réclamer réparation","Le dommage doit toucher au moins 5 personnes"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Une victime par ricochet est :",
+    opts: ["La victime directe d'un accident","Une personne qui a subi un dommage parce que l'un de ses proches a lui-même subi un dommage","Un témoin de l'accident","Une personne partiellement responsable du dommage"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Un dommage purement éventuel ou hypothétique :",
+    opts: ["Est réparé immédiatement","N'est pas réparable","Est réparé à hauteur de 50 %","Est réparé uniquement si la victime est mineure"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La perte de chance est indemnisable à condition que :",
+    opts: ["La chance perdue soit certaine et représente 100 % de probabilité","La chance perdue soit réelle et sérieuse","La victime soit un professionnel","La perte soit supérieure à 1 000 €"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La réparation en nature vise à :",
+    opts: ["Verser des dommages-intérêts à la victime","Remettre la victime dans l'état dans lequel elle se trouvait avant le dommage","Prononcer une sanction pénale","Réduire le prix d'un contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "La réparation par équivalent consiste en :",
+    opts: ["La remise en état du bien endommagé","Le versement de dommages-intérêts","Une excuse publique de l'auteur du dommage","La résolution du contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Le mécanisme de l'assurance permet de :",
+    opts: ["Supprimer la responsabilité civile de l'assuré","Mutualiser les risques : les assurés versent des primes en échange d'une indemnisation en cas de sinistre","Rembourser uniquement les dommages corporels","Transférer la responsabilité pénale à l'assureur"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Les fonds de garantie interviennent notamment lorsque :",
+    opts: ["La victime refuse d'engager une procédure judiciaire","Le responsable du dommage n'est pas identifié ou n'est pas solvable","Le dommage est inférieur à un certain seuil","La victime est elle-même responsable du dommage"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 3 – Responsabilités civile et pénale",
+    q: "Pour obtenir réparation d'un dommage lié à une infraction pénale, la victime peut :",
+    opts: ["Uniquement intenter une action civile devant les tribunaux judiciaires","Uniquement se constituer partie civile auprès du juge pénal","Intenter une action civile devant les tribunaux judiciaires OU se constituer partie civile auprès du juge pénal","Saisir directement le Fonds de garantie sans passer par un juge"],
+    answer: 2
+  },
+
+  // ── CHAPITRE 4 : Les régimes de responsabilité civile (20 questions) ──
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "L'obligation de résultat signifie que le débiteur :",
+    opts: ["S'engage uniquement à faire de son mieux","S'engage à parvenir à un résultat précis ; sa responsabilité est engagée dès que ce résultat n'est pas atteint","Doit prouver sa bonne foi pour s'exonérer","N'est responsable qu'en cas de faute intentionnelle"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "L'obligation de moyens signifie que le débiteur :",
+    opts: ["S'engage à atteindre un résultat précis","S'engage à mettre en œuvre tous les moyens nécessaires pour atteindre le résultat, sans garantir celui-ci","Est automatiquement responsable si le résultat n'est pas atteint","Ne peut jamais être tenu responsable"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "En matière de responsabilité contractuelle, l'indemnisation est limitée :",
+    opts: ["À l'intégralité des dommages subis, qu'ils soient prévisibles ou non","Aux seuls dommages prévisibles au moment de la conclusion du contrat","Aux dommages corporels uniquement","À un montant fixé par la loi"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Une clause exonératoire de responsabilité est une clause qui prévoit :",
+    opts: ["Que la responsabilité d'une partie n'est pas engagée en cas d'inexécution de certaines obligations","Que le montant des dommages-intérêts est plafonné","Que la résolution du contrat est automatique en cas d'inexécution","Que les parties renoncent à tout recours judiciaire"],
+    answer: 0
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "La responsabilité du fait personnel s'applique lorsque :",
+    opts: ["Le dommage est causé par un animal","Le dommage a été causé par la faute de l'auteur lui-même, volontaire ou par imprudence","Le dommage résulte du fait d'un salarié","Le dommage est causé par un produit défectueux"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "La responsabilité du fait d'autrui engage notamment :",
+    opts: ["Le vendeur d'un produit défectueux","Les parents pour les dommages causés par leurs enfants, et les employeurs pour les dommages causés par leurs salariés dans leurs missions","Le propriétaire d'un animal","Le gardien d'une chose"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "La responsabilité du fait des choses nécessite de prouver :",
+    opts: ["La faute du gardien de la chose","L'intervention matérielle de la chose et son rôle actif dans la réalisation du dommage","Que la chose appartient à l'auteur du dommage","Que la chose était défectueuse"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Le gardien d'une chose est :",
+    opts: ["Son propriétaire légal, dans tous les cas","Celui qui a les pouvoirs d'usage, de direction et de contrôle sur la chose","Celui qui l'a fabriquée","Celui qui l'a vendue"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Les responsabilités du fait d'autrui, du fait des choses et du fait des animaux sont :",
+    opts: ["Des responsabilités pour faute : le responsable peut s'exonérer en prouvant qu'il n'a pas commis de faute","Des responsabilités de plein droit : le responsable ne peut pas s'exonérer en prouvant l'absence de faute","Des responsabilités uniquement pénales","Des responsabilités réservées aux professionnels"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Lorsque plusieurs faits ont concouru à la réalisation d'un dommage, le juge retient en principe :",
+    opts: ["Tous les faits à égalité","La cause directe et immédiate du dommage, c'est-à-dire le fait qui a joué un rôle prépondérant","Le fait le plus ancien","Le fait commis par le débiteur contractuel"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Un produit est défectueux au sens de la loi s'il :",
+    opts: ["Est vendu à un prix trop élevé","N'offre pas la sécurité à laquelle on peut légitimement s'attendre","Présente un défaut d'emballage mineur","Est fabriqué hors de France"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "En matière de responsabilité du fait des produits défectueux, la victime doit prouver :",
+    opts: ["La faute du producteur","Le défaut du produit, le dommage et le lien de causalité entre les deux (sans avoir à prouver la faute)","Que le producteur connaissait le défaut","Que le produit a été acheté neuf"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Le régime spécifique d'indemnisation des accidents de la circulation s'applique en présence de :",
+    opts: ["Tout type d'accident, y compris à pied","Un accident impliquant un véhicule terrestre à moteur","Un accident impliquant uniquement des véhicules de transport en commun","Un accident survenu uniquement sur autoroute"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Dans un accident de la circulation, les dommages corporels des victimes non conductrices sont :",
+    opts: ["Réparés uniquement si elles n'ont commis aucune faute","Systématiquement réparés, sauf en cas de faute inexcusable de leur part","Réparés uniquement si l'auteur est assuré","Jamais réparés si elles ont traversé hors des clous"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Si l'auteur d'un accident de la circulation n'est pas assuré ou non identifié, l'indemnisation est prise en charge par :",
+    opts: ["La sécurité sociale","Le Fonds de garantie des assurances obligatoires (FGAO)","L'État directement","La victime elle-même"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "La force majeure, comme cause d'exonération, est un événement :",
+    opts: ["Prévisible, résistible et intérieur à l'auteur du dommage","Imprévisible, irrésistible et extérieur","Imprévisible uniquement","Causé par un tiers identifié"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Lorsque le dommage est dû intégralement à la force majeure ou au fait d'un tiers, le responsable est :",
+    opts: ["Partiellement exonéré","Totalement exonéré de sa responsabilité","Toujours tenu de réparer","Exonéré uniquement pénalement"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Le fait de la victime peut entraîner une exonération partielle du responsable à condition que :",
+    opts: ["La victime soit mineure","La victime ait commis une faute ayant contribué à la réalisation du dommage","Le responsable soit lui-même une victime","Le dommage soit uniquement corporel"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Une clause limitative de responsabilité est une clause qui prévoit :",
+    opts: ["Que la responsabilité d'une partie n'est jamais engagée","Que le montant de l'indemnisation est limité à un plafond prévu dans le contrat","Que le contrat est automatiquement résilié en cas d'inexécution","Que seule la victime peut engager la responsabilité"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 4 – Régimes de responsabilité civile",
+    q: "Un employeur est responsable des dommages causés par ses salariés :",
+    opts: ["Dans tous les cas, même en dehors du travail","À l'occasion des missions qui leur ont été confiées","Uniquement si le salarié a agi de façon intentionnelle","Jamais, car le salarié est seul responsable de ses actes"],
+    answer: 1
+  }
+];
+
+let current = 0;
+let score = 0;
+let answers = [];
+let studentName = "";
+let answered = false;
+
+function startQuiz() {
+  studentName = document.getElementById('student-name').value.trim();
+  if (!studentName) { alert("Veuillez saisir votre nom et prénom."); return; }
+  document.getElementById('student-form-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('q-counter').textContent = `Question ${current+1} / ${questions.length}`;
+  updateScoreLive();
+  document.getElementById('progress-fill').style.width = `${(current/questions.length)*100}%`;
+  document.getElementById('q-badge').textContent = q.chap;
+  document.getElementById('q-text').textContent = `${current+1}. ${q.q}`;
+
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i, btn);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'none';
+
+  const nav = document.querySelector('.quiz-nav');
+  let skipBtn = document.getElementById('btn-skip');
+  if (skipBtn) skipBtn.remove();
+  skipBtn = document.createElement('button');
+  skipBtn.id = 'btn-skip';
+  skipBtn.className = 'btn-next';
+  skipBtn.style.display = 'block';
+  skipBtn.style.background = 'transparent';
+  skipBtn.style.border = '1.5px solid rgba(201,168,76,0.3)';
+  skipBtn.style.color = 'rgba(245,240,232,0.45)';
+  skipBtn.style.marginRight = '10px';
+  skipBtn.textContent = 'Abstention (0 pt)';
+  skipBtn.onclick = () => skipAnswer();
+  nav.insertBefore(skipBtn, document.getElementById('btn-next'));
+}
+
+function skipAnswer() {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  answers.push({ q: q.q, chap: q.chap, chosen: null, correct: q.answer, correctText: q.opts[q.answer], status: 'skip' });
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ko';
+  fb.style.display = 'block';
+  fb.innerHTML = `<strong>Abstention.</strong> La bonne réponse était : <em>${q.opts[q.answer]}</em>`;
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  document.getElementById('btn-skip').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function selectAnswer(i, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  document.getElementById('btn-skip').style.display = 'none';
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+
+  if (i === q.answer) {
+    score += 0.5;
+    btn.classList.add('correct');
+    fb.className = 'feedback ok';
+    fb.innerHTML = `<strong>✓ Bonne réponse !</strong> +0,5 point`;
+    answers.push({ q: q.q, chap: q.chap, chosen: i, chosenText: q.opts[i], correct: q.answer, correctText: q.opts[q.answer], status: 'correct' });
+  } else {
+    score -= 0.25;
+    btn.classList.add('wrong');
+    allBtns[q.answer].classList.add('correct');
+    fb.className = 'feedback ko';
+    fb.innerHTML = `<strong>✗ Mauvaise réponse.</strong> −0,25 point. Réponse exacte : <em>${q.opts[q.answer]}</em>`;
+    answers.push({ q: q.q, chap: q.chap, chosen: i, chosenText: q.opts[i], correct: q.answer, correctText: q.opts[q.answer], status: 'wrong' });
+  }
+
+  updateScoreLive();
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function updateScoreLive() {
+  const display = score >= 0 ? `+${score.toFixed(2)}` : score.toFixed(2);
+  document.getElementById('score-live').textContent = `Score : ${display} pt`;
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    document.getElementById('question-card').style.animation = 'none';
+    requestAnimationFrame(() => {
+      document.getElementById('question-card').style.animation = 'slideIn 0.3s ease';
+      showQuestion();
+    });
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('score-screen').style.display = 'block';
+
+  const maxBrut = questions.length * 0.5;
+  let note = (score / maxBrut) * 20;
+  note = Math.max(0, Math.min(20, note));
+  const noteRounded = Math.round(note * 2) / 2;
+
+  document.getElementById('final-note').textContent = `${noteRounded.toFixed(1)} / 20`;
+
+  const mention = noteRounded >= 16 ? "Très bien 🎓" :
+                  noteRounded >= 14 ? "Bien" :
+                  noteRounded >= 12 ? "Assez bien" :
+                  noteRounded >= 10 ? "Passable" : "Insuffisant";
+  document.getElementById('final-sub').textContent = mention;
+
+  const ok = answers.filter(a => a.status === 'correct').length;
+  const ko = answers.filter(a => a.status === 'wrong').length;
+  const sk = answers.filter(a => a.status === 'skip').length;
+  document.getElementById('stat-ok').textContent = ok;
+  document.getElementById('stat-ko').textContent = ko;
+  document.getElementById('stat-skip').textContent = sk;
+
+  const list = document.getElementById('detail-list');
+  list.innerHTML = '';
+  answers.forEach((a, idx) => {
+    const div = document.createElement('div');
+    div.className = `detail-item ${a.status}`;
+    const icon = a.status === 'correct' ? '✅' : a.status === 'wrong' ? '❌' : '⬜';
+    let ansHtml = '';
+    if (a.status === 'correct') {
+      ansHtml = `<div class="detail-ans"><span class="correct-ans">✓ ${a.correctText}</span></div>`;
+    } else if (a.status === 'wrong') {
+      ansHtml = `<div class="detail-ans"><span class="your-ans">Votre réponse : ${a.chosenText}</span><br><span class="correct-ans">Bonne réponse : ${a.correctText}</span></div>`;
+    } else {
+      ansHtml = `<div class="detail-ans"><span class="your-ans">Abstention — Bonne réponse : </span><span class="correct-ans">${a.correctText}</span></div>`;
+    }
+    div.innerHTML = `<span class="detail-icon">${icon}</span><div><div class="detail-q"><strong>Q${idx+1}.</strong> ${a.q}</div>${ansHtml}</div>`;
+    list.appendChild(div);
+  });
+
+  window._quizResult = { noteRounded, ok, ko, sk, score, answers };
+}
+
+function sendEmail() {
+  const r = window._quizResult;
+  if (!r) return;
+  const { noteRounded, ok, ko, sk, score, answers } = r;
+  const to = "c.chaudronnier@ejda.fr";
+  const subject = encodeURIComponent(`[QCM Droit Thème 6] Résultat de ${studentName}`);
+
+  let body = `QCM Droit – Thème 6 : Qu'est-ce qu'être responsable ?\n`;
+  body += `Élève : ${studentName}\n`;
+  body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  body += `Note : ${noteRounded.toFixed(1)} / 20\n`;
+  body += `Score brut : ${score.toFixed(2)} pt\n`;
+  body += `Correctes : ${ok}  |  Incorrectes : ${ko}  |  Abstentions : ${sk}\n`;
+  body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  body += `DÉTAIL DES RÉPONSES :\n\n`;
+
+  answers.forEach((a, i) => {
+    const status = a.status === 'correct' ? '[CORRECT]' : a.status === 'wrong' ? '[INCORRECT]' : '[ABSTENTION]';
+    body += `Q${i+1}. ${status}\n${a.q}\n`;
+    if (a.status === 'correct') {
+      body += `Réponse : ${a.correctText}\n`;
+    } else if (a.status === 'wrong') {
+      body += `Réponse donnée : ${a.chosenText}\nBonne réponse  : ${a.correctText}\n`;
+    } else {
+      body += `Abstention — Bonne réponse : ${a.correctText}\n`;
+    }
+    body += `\n`;
+  });
+
+  window.location.href = `mailto:${to}?subject=${subject}&body=${encodeURIComponent(body)}`;
+}
+</script>
+</body>
+</html>
