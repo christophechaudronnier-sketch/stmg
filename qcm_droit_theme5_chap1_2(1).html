@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM – Droit – Thème 5 : Le contrat</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2e45;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #f5f0e8;
+    --red: #c0392b;
+    --green: #1e7d4a;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(13,27,42,0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Source Serif 4', Georgia, serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 60px 0;
+  }
+
+  /* HEADER */
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, var(--navy-mid) 0%, #0a1520 100%);
+    border-bottom: 3px solid var(--gold);
+    padding: 32px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 2px solid rgba(201,168,76,0.15);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.1);
+  }
+  .header-label {
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+  header p {
+    font-size: 0.88rem;
+    color: rgba(245,240,232,0.65);
+    font-style: italic;
+  }
+
+  /* STUDENT FORM */
+  #student-form-screen {
+    width: 100%;
+    max-width: 540px;
+    margin: 40px auto 0;
+    padding: 0 20px;
+  }
+  .card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: var(--shadow);
+  }
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  input[type="text"] {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="text"]:focus { border-color: var(--gold); }
+  .rules-box {
+    background: rgba(201,168,76,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 14px 16px;
+    margin-top: 22px;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: rgba(245,240,232,0.85);
+  }
+  .rules-box strong { color: var(--gold-light); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 13px 32px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    text-align: center;
+    width: 100%;
+  }
+  .btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    margin-top: 12px;
+  }
+  .btn-outline:hover { background: rgba(201,168,76,0.12); }
+
+  /* QUIZ SCREEN */
+  #quiz-screen { display: none; width: 100%; max-width: 720px; margin: 0 auto; padding: 30px 20px 0; }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.07);
+    border-radius: 99px;
+    height: 6px;
+    margin-bottom: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: rgba(245,240,232,0.5);
+    margin-bottom: 24px;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--navy-mid);
+    border: 1px solid rgba(201,168,76,0.22);
+    border-radius: 12px;
+    padding: 28px 28px 24px;
+    box-shadow: var(--shadow);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .question-badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .question-text {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--cream);
+    margin-bottom: 22px;
+  }
+
+  /* CHOICES */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1.5px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    padding: 13px 18px;
+    cursor: pointer;
+    text-align: left;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .choice-btn:hover:not(:disabled) {
+    background: rgba(201,168,76,0.1);
+    border-color: var(--gold);
+    transform: translateX(3px);
+  }
+  .choice-btn .letter {
+    min-width: 28px; height: 28px;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.85rem;
+    color: var(--gold);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .choice-btn.correct {
+    background: rgba(30,125,74,0.2);
+    border-color: #2ecc71;
+  }
+  .choice-btn.correct .letter { background: rgba(30,125,74,0.3); border-color: #2ecc71; color: #2ecc71; }
+  .choice-btn.wrong {
+    background: rgba(192,57,43,0.2);
+    border-color: var(--red);
+  }
+  .choice-btn.wrong .letter { background: rgba(192,57,43,0.3); border-color: var(--red); color: #e74c3c; }
+  .choice-btn:disabled { cursor: default; transform: none; }
+
+  /* FEEDBACK */
+  .feedback {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+  .feedback.ok { background: rgba(30,125,74,0.15); border-left: 3px solid #2ecc71; color: #a8f0c6; }
+  .feedback.ko { background: rgba(192,57,43,0.15); border-left: 3px solid var(--red); color: #f5a9a2; }
+
+  /* NAV */
+  .quiz-nav {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+  .btn-next {
+    display: none;
+    padding: 11px 28px;
+    background: var(--gold);
+    color: var(--navy);
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-next:hover { background: var(--gold-light); }
+
+  /* SCORE SCREEN */
+  #score-screen {
+    display: none;
+    width: 100%;
+    max-width: 680px;
+    margin: 40px auto 0;
+    padding: 0 20px 60px;
+  }
+  .score-hero {
+    background: linear-gradient(135deg, var(--navy-mid), #0a1520);
+    border: 1px solid rgba(201,168,76,0.35);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow);
+  }
+  .score-hero .grade-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  .score-hero .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3.5rem, 12vw, 6rem);
+    font-weight: 900;
+    color: var(--gold-light);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .score-hero .score-sub {
+    font-size: 0.9rem;
+    color: rgba(245,240,232,0.55);
+    font-style: italic;
+    margin-bottom: 20px;
+  }
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .stat-num.green { color: #2ecc71; }
+  .stat-num.red { color: #e74c3c; }
+  .stat-num.gray { color: rgba(245,240,232,0.4); }
+  .stat-label { font-size: 0.75rem; color: rgba(245,240,232,0.5); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* DETAIL TABLE */
+  .detail-section { margin-top: 24px; }
+  .detail-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .detail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .detail-item.correct { border-color: rgba(46,204,113,0.2); }
+  .detail-item.wrong { border-color: rgba(231,76,60,0.2); }
+  .detail-item.skipped { border-color: rgba(245,240,232,0.1); }
+  .detail-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .detail-q { color: var(--cream); margin-bottom: 3px; }
+  .detail-ans { font-size: 0.8rem; }
+  .detail-ans .your-ans { color: rgba(245,240,232,0.55); }
+  .detail-ans .correct-ans { color: #a8f0c6; }
+
+  /* EMAIL BTN */
+  .email-section { margin-top: 28px; }
+  .email-section p {
+    font-size: 0.85rem;
+    color: rgba(245,240,232,0.6);
+    margin-bottom: 14px;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  /* Responsive */
+  @media(max-width: 500px) {
+    .card, .question-card { padding: 20px 16px; }
+    .stats-row { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">Terminale STMG · Droit · Thème 5</div>
+  <h1>QCM — Le rôle du contrat</h1>
+  <p>Chapitre 1 : La formation du contrat &nbsp;·&nbsp; Chapitre 2 : L'exécution du contrat</p>
+</header>
+
+<!-- ÉCRAN 1 : NOM -->
+<div id="student-form-screen">
+  <div class="card">
+    <h2>Avant de commencer</h2>
+    <label for="student-name">Votre nom et prénom</label>
+    <input type="text" id="student-name" placeholder="Ex : Dupont Marie" />
+    <div class="rules-box">
+      <strong>Règles du QCM :</strong><br>
+      • 40 questions à choix unique<br>
+      • <strong>Bonne réponse :</strong> +0,5 point<br>
+      • <strong>Mauvaise réponse :</strong> −0,25 point (pénalité)<br>
+      • <strong>Abstention :</strong> 0 point<br>
+      • Note finale sur <strong>20 points</strong><br>
+      • Le détail de vos réponses sera envoyé par e-mail à votre professeur.
+    </div>
+    <button class="btn" onclick="startQuiz()">Commencer le QCM →</button>
+  </div>
+</div>
+
+<!-- ÉCRAN 2 : QUIZ -->
+<div id="quiz-screen">
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill"></div>
+  </div>
+  <div class="progress-meta">
+    <span id="q-counter">Question 1 / 40</span>
+    <span id="score-live">Score : 0 pt</span>
+  </div>
+  <div class="question-card" id="question-card">
+    <div class="question-badge" id="q-badge">Chapitre 1</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="quiz-nav">
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Question suivante →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ÉCRAN 3 : RÉSULTATS -->
+<div id="score-screen">
+  <div class="score-hero">
+    <div class="grade-label">Résultat final</div>
+    <div class="score-num" id="final-note">—</div>
+    <div class="score-sub" id="final-sub"></div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num green" id="stat-ok">0</div><div class="stat-label">Correctes</div></div>
+      <div class="stat-item"><div class="stat-num red" id="stat-ko">0</div><div class="stat-label">Incorrectes</div></div>
+      <div class="stat-item"><div class="stat-num gray" id="stat-skip">0</div><div class="stat-label">Abstentions</div></div>
+    </div>
+  </div>
+
+  <div class="email-section">
+    <p>Cliquez ci-dessous pour envoyer automatiquement le détail de vos réponses à votre professeur. Votre messagerie s'ouvrira.</p>
+    <button class="btn" id="btn-email" onclick="sendEmail()">📧 Envoyer les résultats au professeur</button>
+  </div>
+
+  <div class="detail-section">
+    <h3>Détail de vos réponses</h3>
+    <div id="detail-list"></div>
+  </div>
+</div>
+
+<script>
+// ========================
+// QUESTIONS (40)
+// ========================
+const questions = [
+  // --- CHAPITRE 1 : LA FORMATION DU CONTRAT ---
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Un contrat est défini comme :",
+    opts: ["Un acte unilatéral créant des obligations pour une seule partie","Un accord de volonté entre deux ou plusieurs personnes destiné à créer, modifier, transmettre ou éteindre des obligations","Un document écrit obligatoirement signé devant notaire","Une décision prise par un juge entre deux parties en litige"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Dans un contrat, le créancier est :",
+    opts: ["Celui qui doit exécuter la prestation","Celui qui peut exiger la prestation de l'autre","Celui qui rédige le contrat","La personne qui n'est pas partie au contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Selon le principe de liberté contractuelle (art. 1102 C. civil), les parties sont libres de :",
+    opts: ["Contracter ou non, choisir leur contractant, fixer le contenu et la forme du contrat","Contracter ou non, mais sans pouvoir choisir librement le contenu","Choisir uniquement la forme du contrat","Contracter avec n'importe qui, y compris contre les dispositions légales"],
+    answer: 0
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Le principe de l'effet relatif des contrats (art. 1199 C. civil) signifie que :",
+    opts: ["Le contrat peut être imposé à n'importe qui","Le contrat ne crée d'obligations qu'entre les parties","Les tiers peuvent exiger l'exécution du contrat","Le contrat peut être modifié par les tiers"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "La forme d'un contrat est, en principe :",
+    opts: ["Obligatoirement écrite","Libre (écrit, parole, geste)","Toujours notariée","Uniquement orale"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "L'obligation d'information lors de la formation du contrat s'impose :",
+    opts: ["Uniquement à l'acheteur","À la partie qui connaît une information déterminante que l'autre ignore","Seulement si le contrat dépasse 500 €","Aux deux parties de manière identique, sans distinction"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Le consentement se forme par :",
+    opts: ["La signature du contrat uniquement","La rencontre d'une offre et d'une acceptation","L'accord du juge","Une décision administrative"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "L'erreur vice du consentement est prise en compte lorsqu'elle porte sur :",
+    opts: ["N'importe quel élément du contrat","Un élément essentiel du contrat ou sur la personne du cocontractant (intuitu personae)","Le prix uniquement","La durée du contrat seulement"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Le dol est défini comme :",
+    opts: ["Une menace physique exercée par un tiers","Une erreur spontanée de l'une des parties","Une erreur provoquée par une tromperie (manœuvre, mensonge ou dissimulation) de l'autre partie","Un simple oubli d'information non intentionnel"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "La violence comme vice du consentement correspond à :",
+    opts: ["Une erreur sur le prix","Une menace injuste et illégitime faisant naître un sentiment de crainte","Une tromperie par dissimulation d'informations","Un simple désaccord entre les parties"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "La capacité juridique se définit comme :",
+    opts: ["La capacité physique à signer un document","L'aptitude à être titulaire de droits et à les exercer","L'autorisation donnée par un juge","La majorité fiscale d'une personne"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Le contenu d'un contrat doit être :",
+    opts: ["Uniquement certain","Certain et licite","Seulement licite","Certain, licite et toujours onéreux"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "La nullité relative sanctionne :",
+    opts: ["La violation d'une règle protectrice de l'intérêt général","La violation d'une règle protectrice des intérêts privés (vice du consentement, incapacité)","Tout contrat dont le contenu est illicite","Un simple retard dans l'exécution du contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "La nullité absolue sanctionne :",
+    opts: ["Un vice du consentement","Une incapacité d'une des parties","La violation d'une règle protectrice de l'intérêt général (ex : contenu illicite)","Un retard de livraison"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "En principe, le délai pour agir en nullité d'un contrat est de :",
+    opts: ["1 an","2 ans","5 ans","10 ans"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "L'obligation d'information du professionnel envers le consommateur comprend notamment :",
+    opts: ["Uniquement le prix du bien","Les caractéristiques essentielles du bien, le prix, les conditions de vente, l'identité du professionnel…","Seulement les conditions de retour","Uniquement les délais de livraison"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "En cas de litige sur l'obligation d'information, c'est :",
+    opts: ["Au consommateur de prouver qu'il n'a pas été informé","Au professionnel de prouver qu'il a exécuté ses obligations d'information","Au juge d'estimer si l'information était suffisante sans preuve","Aux deux parties de prouver simultanément"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "La procédure du \"double-clic\" (art. 1127-2 C. civil) vise à :",
+    opts: ["Obliger le cyberconsommateur à payer immédiatement","Permettre au cyberacheteur de vérifier sa commande et son prix avant de confirmer définitivement","Imposer une signature électronique certifiée","Supprimer le droit de rétractation en ligne"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Le droit de rétractation du cyberconsommateur (art. L.221-18 C. conso.) s'exerce dans un délai de :",
+    opts: ["7 jours à compter de la commande","10 jours à compter de la livraison","14 jours à compter de la réception de la commande","30 jours à compter de la commande"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Les frais de renvoi des biens lors de l'exercice du droit de rétractation sont, en principe, à la charge de :",
+    opts: ["Du professionnel","Du cyberconsommateur","Partagés à 50/50","Du transporteur"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Une clause contractuelle est :",
+    opts: ["Une condition illégale imposée par l'une des parties","Une stipulation (disposition) particulière figurant dans le contrat","Un jugement rendu par le tribunal","Une loi applicable aux contrats"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Dans le cas où un contrat prévoit une obligation intuitu personae, l'erreur sur ______ est un vice du consentement :",
+    opts: ["Le prix","L'objet","La personne du cocontractant","La durée"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Un contrat à titre onéreux est invalide si la contrepartie est :",
+    opts: ["Légèrement inférieure à la valeur du marché","Illusoire ou dérisoire","Supérieure à 10 000 €","Payable à terme"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "Après conclusion du contrat en ligne, le cybervendeur doit accuser réception de la commande :",
+    opts: ["Dans un délai de 48h par courrier postal","Sans délai et par voie électronique","Dans un délai de 7 jours par lettre recommandée","Uniquement si le consommateur le demande"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 1 – Formation du contrat",
+    q: "L'obligation de conseil est particulièrement renforcée lorsque :",
+    opts: ["Les deux parties sont des professionnels du même secteur","Il existe une inégalité de compétences entre les parties (ex : professionnel / client)","Le contrat est conclu à distance","Le prix dépasse un certain seuil"],
+    answer: 1
+  },
+
+  // --- CHAPITRE 2 : L'EXÉCUTION DU CONTRAT ---
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Le principe de la force obligatoire du contrat (art. 1103 C. civil) signifie que :",
+    opts: ["Le contrat peut être modifié unilatéralement par l'une des parties","Les parties doivent exécuter leurs obligations ; aucune ne peut modifier ni révoquer le contrat de sa seule initiative","Le contrat peut être annulé par un tiers","Le juge peut modifier librement le contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Une clause abusive est une clause qui :",
+    opts: ["Précise le prix du contrat","Crée un déséquilibre significatif entre les droits et obligations des parties","Fixe les délais de livraison","Définit l'objet du contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Les clauses abusives sont réputées :",
+    opts: ["Valides mais inapplicables","Non écrites","Nulles et rendent le contrat entier nul","Valides uniquement entre professionnels"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "L'inexécution totale d'un contrat correspond à :",
+    opts: ["Une prestation fournie partiellement","Une prestation fournie avec retard","L'absence totale d'exécution de la prestation prévue","Une exécution conforme au contrat mais tardive"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "En l'absence de délai précisé dans le contrat entre professionnel et consommateur, le professionnel doit s'exécuter dans :",
+    opts: ["7 jours","14 jours","30 jours","60 jours"],
+    answer: 2
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "L'exception d'inexécution permet au créancier de :",
+    opts: ["Demander la résolution du contrat immédiatement","Refuser d'exécuter sa propre obligation ou en suspendre l'exécution","Réclamer des dommages-intérêts sans mise en demeure","Modifier le contrat de façon unilatérale"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "La résolution d'un contrat entraîne :",
+    opts: ["La simple suspension temporaire du contrat","L'anéantissement rétroactif du contrat (le contrat ne produit plus d'effets)","Le maintien du contrat avec modification des obligations","Une pénalité financière uniquement"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "La résiliation se distingue de la résolution car elle :",
+    opts: ["Produit des effets rétroactifs","Ne supprime que les effets futurs du contrat, sans rétroactivité","Annule toutes les prestations passées","S'applique uniquement aux contrats de vente"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "La mise en demeure est :",
+    opts: ["Un jugement rendu par le tribunal","La manifestation officielle du mécontentement du créancier, exigeant du débiteur qu'il exécute ses engagements dans un certain délai","Un simple appel téléphonique au débiteur","Une clause insérée dans le contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Il est recommandé d'adresser une mise en demeure :",
+    opts: ["Par simple e-mail","Par lettre recommandée avec accusé de réception ou par voie d'huissier","Oralement devant témoins","Par SMS"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Une clause pénale (stipulation de pénalité) dans un contrat permet de :",
+    opts: ["Prévoir à l'avance le montant des dommages-intérêts en cas d'inexécution","Exclure toute possibilité de recours au juge","Imposer une sanction pénale (prison) au débiteur défaillant","Supprimer l'obligation de mise en demeure"],
+    answer: 0
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Face à une clause pénale manifestement excessive, le juge peut :",
+    opts: ["L'appliquer strictement sans pouvoir la modifier","La modérer ou l'augmenter","L'annuler totalement et accorder des dommages-intérêts librement","L'ignorer et statuer librement"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Les dommages-intérêts correspondent, en principe, à :",
+    opts: ["Un montant forfaitaire fixé par la loi","La perte subie par le créancier et le gain dont il a été privé","Uniquement le préjudice moral","Le double du prix du contrat"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Un contrat à durée indéterminée peut en principe être résilié :",
+    opts: ["À tout moment, sans condition","Sous réserve de respecter un préavis ou un délai raisonnable","Uniquement par décision de justice","Sans préavis, immédiatement"],
+    answer: 1
+  },
+  {
+    chap: "Chapitre 2 – Exécution du contrat",
+    q: "Dans un contrat d'adhésion, les clauses sont :",
+    opts: ["Librement négociées par les deux parties","Non négociables, déterminées à l'avance par l'une des parties","Fixées par le juge","Proposées par un organisme public"],
+    answer: 1
+  }
+];
+
+// ========================
+// STATE
+// ========================
+let current = 0;
+let score = 0;         // en demi-points (+0.5 / -0.25)
+let answers = [];      // {q, chosen, correct, status}
+let studentName = "";
+let answered = false;
+
+// ========================
+// START
+// ========================
+function startQuiz() {
+  studentName = document.getElementById('student-name').value.trim();
+  if (!studentName) { alert("Veuillez saisir votre nom et prénom."); return; }
+  document.getElementById('student-form-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+  showQuestion();
+}
+
+// ========================
+// SHOW QUESTION
+// ========================
+function showQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('q-counter').textContent = `Question ${current+1} / ${questions.length}`;
+  updateScoreLive();
+  document.getElementById('progress-fill').style.width = `${(current/questions.length)*100}%`;
+  document.getElementById('q-badge').textContent = q.chap;
+  document.getElementById('q-text').textContent = `${current+1}. ${q.q}`;
+
+  const choicesEl = document.getElementById('choices');
+  choicesEl.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(i, btn);
+    choicesEl.appendChild(btn);
+  });
+
+  document.getElementById('feedback').style.display = 'none';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('btn-next').style.display = 'none';
+  // Ajouter bouton abstention
+  const nav = document.querySelector('.quiz-nav');
+  let skipBtn = document.getElementById('btn-skip');
+  if (skipBtn) skipBtn.remove();
+  skipBtn = document.createElement('button');
+  skipBtn.id = 'btn-skip';
+  skipBtn.className = 'btn-next';
+  skipBtn.style.display = 'block';
+  skipBtn.style.background = 'transparent';
+  skipBtn.style.border = '1.5px solid rgba(201,168,76,0.3)';
+  skipBtn.style.color = 'rgba(245,240,232,0.45)';
+  skipBtn.style.marginRight = '10px';
+  skipBtn.textContent = 'Abstention (0 pt)';
+  skipBtn.onclick = () => skipAnswer();
+  nav.insertBefore(skipBtn, document.getElementById('btn-next'));
+}
+
+function skipAnswer() {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  answers.push({ q: q.q, chap: q.chap, chosen: null, correct: q.answer, correctText: q.opts[q.answer], status: 'skip' });
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ko';
+  fb.style.display = 'block';
+  fb.innerHTML = `<strong>Abstention.</strong> La bonne réponse était : <em>${q.opts[q.answer]}</em>`;
+  // disable all
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  document.getElementById('btn-skip').style.display = 'none';
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function selectAnswer(i, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  const allBtns = document.querySelectorAll('.choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  document.getElementById('btn-skip').style.display = 'none';
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+
+  if (i === q.answer) {
+    score += 0.5;
+    btn.classList.add('correct');
+    fb.className = 'feedback ok';
+    fb.innerHTML = `<strong>✓ Bonne réponse !</strong> +0,5 point`;
+    answers.push({ q: q.q, chap: q.chap, chosen: i, chosenText: q.opts[i], correct: q.answer, correctText: q.opts[q.answer], status: 'correct' });
+  } else {
+    score -= 0.25;
+    btn.classList.add('wrong');
+    allBtns[q.answer].classList.add('correct');
+    fb.className = 'feedback ko';
+    fb.innerHTML = `<strong>✗ Mauvaise réponse.</strong> −0,25 point. Réponse exacte : <em>${q.opts[q.answer]}</em>`;
+    answers.push({ q: q.q, chap: q.chap, chosen: i, chosenText: q.opts[i], correct: q.answer, correctText: q.opts[q.answer], status: 'wrong' });
+  }
+
+  updateScoreLive();
+  document.getElementById('btn-next').style.display = 'block';
+}
+
+function updateScoreLive() {
+  const display = score >= 0 ? `+${score.toFixed(2)}` : score.toFixed(2);
+  document.getElementById('score-live').textContent = `Score : ${display} pt`;
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    document.getElementById('question-card').style.animation = 'none';
+    requestAnimationFrame(() => {
+      document.getElementById('question-card').style.animation = 'slideIn 0.3s ease';
+      showQuestion();
+    });
+  }
+}
+
+// ========================
+// RESULTS
+// ========================
+function showResults() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  const scoreScreen = document.getElementById('score-screen');
+  scoreScreen.style.display = 'block';
+
+  // Calcul note /20
+  const maxBrut = questions.length * 0.5; // 20
+  let note = (score / maxBrut) * 20;
+  note = Math.max(0, Math.min(20, note));
+  const noteRounded = Math.round(note * 2) / 2; // arrondi au 0.5
+
+  document.getElementById('final-note').textContent = `${noteRounded.toFixed(1)} / 20`;
+
+  const mention = noteRounded >= 16 ? "Très bien 🎓" :
+                  noteRounded >= 14 ? "Bien" :
+                  noteRounded >= 12 ? "Assez bien" :
+                  noteRounded >= 10 ? "Passable" : "Insuffisant";
+  document.getElementById('final-sub').textContent = mention;
+
+  const ok = answers.filter(a => a.status === 'correct').length;
+  const ko = answers.filter(a => a.status === 'wrong').length;
+  const sk = answers.filter(a => a.status === 'skip').length;
+  document.getElementById('stat-ok').textContent = ok;
+  document.getElementById('stat-ko').textContent = ko;
+  document.getElementById('stat-skip').textContent = sk;
+
+  // Détail
+  const list = document.getElementById('detail-list');
+  list.innerHTML = '';
+  answers.forEach((a, idx) => {
+    const div = document.createElement('div');
+    div.className = `detail-item ${a.status}`;
+    const icon = a.status === 'correct' ? '✅' : a.status === 'wrong' ? '❌' : '⬜';
+    let ansHtml = '';
+    if (a.status === 'correct') {
+      ansHtml = `<div class="detail-ans"><span class="correct-ans">✓ ${a.correctText}</span></div>`;
+    } else if (a.status === 'wrong') {
+      ansHtml = `<div class="detail-ans"><span class="your-ans">Votre réponse : ${a.chosenText}</span><br><span class="correct-ans">Bonne réponse : ${a.correctText}</span></div>`;
+    } else {
+      ansHtml = `<div class="detail-ans"><span class="your-ans">Abstention — Bonne réponse : </span><span class="correct-ans">${a.correctText}</span></div>`;
+    }
+    div.innerHTML = `<span class="detail-icon">${icon}</span><div><div class="detail-q"><strong>Q${idx+1}.</strong> ${a.q}</div>${ansHtml}</div>`;
+    list.appendChild(div);
+  });
+
+  // Stocker pour mailto
+  window._quizResult = { noteRounded, ok, ko, sk, score, answers };
+}
+
+// ========================
+// ENVOI EMAIL
+// ========================
+function sendEmail() {
+  const r = window._quizResult;
+  if (!r) return;
+
+  const { noteRounded, ok, ko, sk, score, answers } = r;
+  const to = "c.chaudronnier@ejda.fr";
+  const subject = encodeURIComponent(`[QCM Droit Thème 5] Résultat de ${studentName}`);
+
+  let body = `QCM Droit – Thème 5 : Le rôle du contrat\n`;
+  body += `Élève : ${studentName}\n`;
+  body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  body += `Note : ${noteRounded.toFixed(1)} / 20\n`;
+  body += `Score brut : ${score.toFixed(2)} pt\n`;
+  body += `Correctes : ${ok}  |  Incorrectes : ${ko}  |  Abstentions : ${sk}\n`;
+  body += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  body += `DÉTAIL DES RÉPONSES :\n\n`;
+
+  answers.forEach((a, i) => {
+    const status = a.status === 'correct' ? '[CORRECT]' : a.status === 'wrong' ? '[INCORRECT]' : '[ABSTENTION]';
+    body += `Q${i+1}. ${status}\n`;
+    body += `${a.q}\n`;
+    if (a.status === 'correct') {
+      body += `Réponse : ${a.correctText}\n`;
+    } else if (a.status === 'wrong') {
+      body += `Réponse donnée : ${a.chosenText}\n`;
+      body += `Bonne réponse  : ${a.correctText}\n`;
+    } else {
+      body += `Abstention — Bonne réponse : ${a.correctText}\n`;
+    }
+    body += `\n`;
+  });
+
+  const mailtoUrl = `mailto:${to}?subject=${subject}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoUrl;
+}
+</script>
+</body>
+</html>
