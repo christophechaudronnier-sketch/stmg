@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escape Game — Économie · Chapitre 10</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a12;
+    --bg2: #0d1524;
+    --bg3: #111d30;
+    --cyan: #00ffe7;
+    --cyan2: #00bfa5;
+    --gold: #ffd54f;
+    --red: #ff3d3d;
+    --green: #00e676;
+    --text: #cde8ff;
+    --muted: #5a7a9a;
+    --border: rgba(0,255,231,0.18);
+    --shadow: 0 0 24px rgba(0,255,231,0.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Exo 2', sans-serif; overflow-x: hidden; }
+
+  /* ── HUD ── */
+  #hud {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px; background: rgba(6,10,18,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+  }
+  #hud-title { font-family: 'Orbitron', sans-serif; font-size: .75rem; color: var(--cyan); letter-spacing: .15em; text-transform: uppercase; }
+  #hud-score { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: var(--gold); }
+  #hud-lives { display: flex; gap: 6px; align-items: center; }
+  .life-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--red); box-shadow: 0 0 6px var(--red); transition: all .3s; }
+  .life-dot.lost { background: #2a1a1a; box-shadow: none; }
+  #hud-rooms { display: flex; gap: 5px; align-items: center; }
+  .room-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); transition: all .4s; }
+  .room-dot.done { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+  .room-dot.active { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+  /* ── MAIN ── */
+  #main { padding-top: 60px; min-height: 100vh; }
+
+  /* ── ÉCRANS ── */
+  .screen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 32px 16px; text-align: center; }
+  .screen.active { display: flex; }
+
+  /* ── INTRO ── */
+  #screen-intro { background: radial-gradient(ellipse at 50% 30%, #0a1e3a 0%, var(--bg) 70%); }
+  .intro-logo { font-family: 'Orbitron', sans-serif; font-size: clamp(1.6rem,5vw,3rem); font-weight: 900; color: var(--cyan); text-shadow: 0 0 30px rgba(0,255,231,.5); letter-spacing: .1em; margin-bottom: 8px; }
+  .intro-sub { font-family: 'Share Tech Mono', monospace; color: var(--gold); font-size: .95rem; letter-spacing: .2em; margin-bottom: 6px; }
+  .intro-chapter { color: var(--muted); font-size: .85rem; letter-spacing: .1em; margin-bottom: 32px; }
+  .intro-desc { max-width: 560px; color: var(--text); line-height: 1.7; font-size: .98rem; margin-bottom: 36px; background: rgba(0,255,231,.04); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; }
+  .name-block { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; width: 100%; max-width: 380px; }
+  .name-block label { font-family: 'Orbitron', sans-serif; font-size: .7rem; color: var(--cyan); letter-spacing: .15em; text-align: left; }
+  .name-block input { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--text); font-family: 'Share Tech Mono', monospace; font-size: 1rem; outline: none; transition: border-color .3s; }
+  .name-block input:focus { border-color: var(--cyan); }
+  .btn-start { font-family: 'Orbitron', sans-serif; font-size: .85rem; font-weight: 700; letter-spacing: .2em; padding: 14px 40px; background: transparent; border: 2px solid var(--cyan); color: var(--cyan); border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: all .3s; position: relative; overflow: hidden; }
+  .btn-start::before { content: ''; position: absolute; inset: 0; background: var(--cyan); opacity: 0; transition: opacity .3s; }
+  .btn-start:hover { color: var(--bg); box-shadow: 0 0 24px rgba(0,255,231,.4); }
+  .btn-start:hover::before { opacity: 1; }
+  .btn-start span { position: relative; z-index: 1; }
+
+  /* ── SALLE ── */
+  #screen-room { align-items: stretch; padding: 28px 16px; }
+  .room-header { text-align: center; margin-bottom: 20px; }
+  .room-label { font-family: 'Share Tech Mono', monospace; color: var(--muted); font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; }
+  .room-title { font-family: 'Orbitron', sans-serif; font-size: clamp(1rem,3vw,1.5rem); font-weight: 700; color: var(--cyan); margin-top: 4px; }
+  .room-progress { font-family: 'Share Tech Mono', monospace; font-size: .8rem; color: var(--gold); margin-top: 4px; }
+
+  .question-card { max-width: 720px; margin: 0 auto; background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 28px 28px 22px; box-shadow: var(--shadow); }
+  .q-text { font-size: 1.05rem; line-height: 1.65; color: var(--text); margin-bottom: 22px; }
+  .q-text strong { color: var(--gold); }
+
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn { background: var(--bg3); border: 1px solid rgba(90,122,154,.3); border-radius: 8px; padding: 12px 18px; color: var(--text); font-family: 'Exo 2', sans-serif; font-size: .95rem; text-align: left; cursor: pointer; transition: all .25s; display: flex; align-items: flex-start; gap: 12px; }
+  .choice-btn:hover:not(:disabled) { border-color: var(--cyan); background: rgba(0,255,231,.06); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-btn.correct { border-color: var(--green); background: rgba(0,230,118,.1); color: var(--green); }
+  .choice-btn.wrong { border-color: var(--red); background: rgba(255,61,61,.1); color: #ff8a80; }
+  .choice-letter { font-family: 'Share Tech Mono', monospace; font-size: .85rem; color: var(--muted); min-width: 18px; margin-top: 1px; }
+
+  .feedback-box { margin-top: 16px; padding: 12px 16px; border-radius: 8px; font-size: .9rem; line-height: 1.55; display: none; }
+  .feedback-box.show { display: block; }
+  .feedback-box.ok { background: rgba(0,230,118,.08); border: 1px solid rgba(0,230,118,.3); color: #a5f3d0; }
+  .feedback-box.ko { background: rgba(255,61,61,.08); border: 1px solid rgba(255,61,61,.3); color: #ffb3b3; }
+
+  .btn-next { margin-top: 18px; font-family: 'Orbitron', sans-serif; font-size: .75rem; font-weight: 700; letter-spacing: .15em; padding: 10px 28px; background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: all .3s; display: none; }
+  .btn-next.show { display: inline-block; }
+  .btn-next:hover { background: var(--gold); color: var(--bg); }
+
+  /* ── TRANSITION SALLE ── */
+  #screen-transition { background: radial-gradient(ellipse at 50% 40%, #0a2a1a 0%, var(--bg) 70%); }
+  .trans-icon { font-size: 3.5rem; margin-bottom: 16px; }
+  .trans-title { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; color: var(--green); margin-bottom: 8px; }
+  .trans-score { font-family: 'Share Tech Mono', monospace; color: var(--gold); font-size: 1.1rem; margin-bottom: 8px; }
+  .trans-next { color: var(--muted); font-size: .9rem; margin-bottom: 28px; }
+
+  /* ── GAME OVER ── */
+  #screen-gameover { background: radial-gradient(ellipse at 50% 40%, #2a0a0a 0%, var(--bg) 70%); }
+  .go-title { font-family: 'Orbitron', sans-serif; font-size: 2rem; color: var(--red); text-shadow: 0 0 20px rgba(255,61,61,.5); margin-bottom: 12px; }
+  .go-msg { color: var(--text); font-size: 1rem; line-height: 1.7; max-width: 440px; margin-bottom: 32px; }
+  .buy-life-block { background: rgba(255,213,79,.06); border: 1px solid rgba(255,213,79,.3); border-radius: 10px; padding: 16px 24px; margin-bottom: 24px; max-width: 400px; }
+  .buy-life-block p { color: var(--gold); font-size: .95rem; margin-bottom: 12px; line-height: 1.5; }
+  .btn-buy { font-family: 'Orbitron', sans-serif; font-size: .75rem; font-weight: 700; letter-spacing: .12em; padding: 10px 24px; background: transparent; border: 1px solid var(--gold); color: var(--gold); border-radius: 6px; cursor: pointer; text-transform: uppercase; transition: all .3s; }
+  .btn-buy:hover { background: var(--gold); color: var(--bg); }
+  .btn-restart { font-family: 'Orbitron', sans-serif; font-size: .8rem; padding: 12px 32px; background: transparent; border: 2px solid var(--red); color: var(--red); border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: .15em; transition: all .3s; }
+  .btn-restart:hover { background: var(--red); color: #fff; }
+
+  /* ── VICTOIRE ── */
+  #screen-victory { background: radial-gradient(ellipse at 50% 30%, #0a2a1a 0%, var(--bg) 80%); }
+  .vic-badge { font-size: 5rem; margin-bottom: 8px; filter: drop-shadow(0 0 20px rgba(0,255,231,.4)); }
+  .vic-grade { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900; margin-bottom: 4px; }
+  .vic-total { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; color: var(--gold); margin-bottom: 24px; }
+  .vic-breakdown { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 18px 24px; max-width: 460px; width: 100%; margin-bottom: 24px; text-align: left; }
+  .vic-breakdown h3 { font-family: 'Orbitron', sans-serif; font-size: .75rem; color: var(--cyan); letter-spacing: .15em; margin-bottom: 12px; }
+  .breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: .9rem; }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-room { color: var(--text); font-size: .85rem; }
+  .breakdown-pts { font-family: 'Share Tech Mono', monospace; color: var(--gold); }
+  .btn-mail { font-family: 'Orbitron', sans-serif; font-size: .8rem; font-weight: 700; letter-spacing: .15em; padding: 13px 36px; background: transparent; border: 2px solid var(--cyan); color: var(--cyan); border-radius: 8px; cursor: pointer; text-transform: uppercase; transition: all .3s; margin-bottom: 12px; }
+  .btn-mail:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 24px rgba(0,255,231,.35); }
+  .vic-footer { color: var(--muted); font-size: .78rem; margin-top: 20px; }
+
+  /* ── GLITCH ANIMATION ── */
+  @keyframes glitch {
+    0%,100% { text-shadow: 0 0 20px rgba(0,255,231,.5); }
+    20% { text-shadow: -2px 0 var(--red), 2px 0 var(--cyan); }
+    40% { text-shadow: 2px 0 var(--red), -2px 0 var(--cyan); }
+    60% { text-shadow: 0 0 20px rgba(0,255,231,.5); }
+  }
+  .glitch { animation: glitch 4s infinite; }
+
+  @keyframes fadeIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn .5s ease both; }
+
+  /* scanner line */
+  body::after { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,231,.012) 2px, rgba(0,255,231,.012) 4px); pointer-events: none; z-index: 200; }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="hud-title">ECO · CH.10</div>
+  <div id="hud-score">⬡ <span id="score-display">0</span> pts</div>
+  <div id="hud-lives">
+    <div class="life-dot" id="life-1"></div>
+    <div class="life-dot" id="life-2"></div>
+    <div class="life-dot" id="life-3"></div>
+  </div>
+  <div id="hud-rooms">
+    <div class="room-dot" id="rdot-0"></div>
+    <div class="room-dot" id="rdot-1"></div>
+    <div class="room-dot" id="rdot-2"></div>
+    <div class="room-dot" id="rdot-3"></div>
+    <div class="room-dot" id="rdot-4"></div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-logo glitch">MARKET BREACH</div>
+  <div class="intro-sub">Économie · 1STMG</div>
+  <div class="intro-chapter">Chapitre 10 — L'intensité de la concurrence selon les marchés</div>
+  <div class="intro-desc">
+    Les marchés sont sous surveillance. Cinq zones d'accès restreint vous séparent de la sortie.<br><br>
+    Prouvez votre maîtrise des marchés, des structures de concurrence, de l'indice IHH, du prix d'équilibre et des élasticités pour franchir chaque verrou.<br><br>
+    <strong style="color:var(--gold)">3 vies · 5 salles · 150 points</strong>
+  </div>
+  <div class="name-block">
+    <label>Votre prénom et nom</label>
+    <input type="text" id="player-name" placeholder="Ex : Marie Dupont" autocomplete="off">
+  </div>
+  <button class="btn-start" onclick="startGame()"><span>▶ Lancer la mission</span></button>
+  <div style="margin-top:32px;color:var(--muted);font-size:.75rem;">© 2026 Christophe Chaudronnier — Économie 1STMG</div>
+</div>
+
+<!-- SALLE -->
+<div class="screen" id="screen-room">
+  <div class="room-header">
+    <div class="room-label" id="room-label">Salle 1 / 5</div>
+    <div class="room-title" id="room-title">ZONE I</div>
+    <div class="room-progress" id="room-progress">Question 1 / 6</div>
+  </div>
+  <div class="question-card fade-in" id="question-card">
+    <div class="q-text" id="q-text"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback-box" id="feedback-box"></div>
+    <div style="text-align:right">
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">Continuer →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSITION -->
+<div class="screen" id="screen-transition">
+  <div class="trans-icon">🔓</div>
+  <div class="trans-title" id="trans-title">Zone déverrouillée !</div>
+  <div class="trans-score" id="trans-score"></div>
+  <div class="trans-next" id="trans-next"></div>
+  <button class="btn-start" onclick="enterNextRoom()"><span>Accéder à la zone suivante →</span></button>
+  <div style="margin-top:32px;color:var(--muted);font-size:.75rem;">© 2026 Christophe Chaudronnier — Économie 1STMG</div>
+</div>
+
+<!-- GAME OVER -->
+<div class="screen" id="screen-gameover">
+  <div class="go-title">— ACCÈS REFUSÉ —</div>
+  <div class="go-msg" id="go-msg">Vous avez épuisé vos trois vies. La mission a échoué.</div>
+  <div class="buy-life-block" id="buy-life-block" style="display:none">
+    <p>Il vous reste <strong id="remaining-pts" style="color:var(--gold)"></strong> pts.<br>
+    Échanger <strong style="color:var(--gold)">30 points</strong> contre une vie supplémentaire ?</p>
+    <button class="btn-buy" onclick="buyLife()">⚡ Acheter 1 vie (−30 pts)</button>
+  </div>
+  <button class="btn-restart" onclick="restartGame()">↺ Recommencer</button>
+  <div style="margin-top:32px;color:var(--muted);font-size:.75rem;">© 2026 Christophe Chaudronnier — Économie 1STMG</div>
+</div>
+
+<!-- VICTOIRE -->
+<div class="screen" id="screen-victory">
+  <div class="vic-badge" id="vic-badge">🏆</div>
+  <div class="vic-grade" id="vic-grade"></div>
+  <div class="vic-total" id="vic-total"></div>
+  <div class="vic-breakdown" id="vic-breakdown">
+    <h3>Détail par zone</h3>
+    <div id="breakdown-rows"></div>
+  </div>
+  <button class="btn-mail" onclick="sendScore()">📧 Envoyer mon score</button>
+  <div class="vic-footer">© 2026 Christophe Chaudronnier — Économie 1STMG</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DONNÉES — 5 SALLES × 6 QUESTIONS
+// ══════════════════════════════════════════
+const ROOMS = [
+  {
+    title: "ZONE I — Le marché",
+    questions: [
+      {
+        q: "Quelle est la définition d'un marché de biens et services ?",
+        choices: [
+          "Un lieu physique où les vendeurs exposent leurs produits",
+          "Le lieu réel ou virtuel de rencontre entre l'offre et la demande de biens et services",
+          "L'ensemble des entreprises d'un même secteur",
+          "Le catalogue de prix fixés par l'État"
+        ],
+        correct: 1,
+        expl: "Le marché est le lieu réel ou virtuel de rencontre entre l'offre (proposée par les entreprises) et la demande (des consommateurs)."
+      },
+      {
+        q: "Sur le marché des biens et services, qui constitue <strong>l'offre</strong> ?",
+        choices: [
+          "Les ménages et les consommateurs",
+          "L'État et les administrations publiques",
+          "Les entreprises productrices de biens et services",
+          "Les banques et les assurances"
+        ],
+        correct: 2,
+        expl: "L'offre est proposée par les entreprises, tandis que la demande est constituée par l'ensemble des consommateurs."
+      },
+      {
+        q: "Qu'est-ce que le <strong>marché pertinent</strong> ?",
+        choices: [
+          "Le marché le plus rentable pour une entreprise",
+          "L'ensemble des produits considérés comme substituables par les consommateurs",
+          "Le marché où les prix sont les plus bas",
+          "Un marché réglementé par une autorité publique"
+        ],
+        correct: 1,
+        expl: "Le marché pertinent regroupe l'ensemble des produits considérés comme substituables les uns aux autres par les consommateurs."
+      },
+      {
+        q: "Deux biens sont dits <strong>substituables</strong> lorsque :",
+        choices: [
+          "Ils sont toujours achetés ensemble",
+          "L'un ne peut pas fonctionner sans l'autre",
+          "Ils répondent au même besoin et peuvent être achetés l'un à la place de l'autre",
+          "Ils sont produits par la même entreprise"
+        ],
+        correct: 2,
+        expl: "Les produits substituables ont la même utilité et peuvent être achetés les uns à la place des autres (ex. : café et thé)."
+      },
+      {
+        q: "Le marché pertinent de la photographie regroupe :",
+        choices: [
+          "Uniquement les appareils photo reflex professionnels",
+          "Tous les dispositifs permettant de faire des photos : appareils photo, smartphones, tablettes",
+          "Uniquement les marques européennes",
+          "Les appareils vendus en magasin physique"
+        ],
+        correct: 1,
+        expl: "Le marché pertinent regroupe tous les produits substituables, ici tous les appareils permettant de prendre des photos, quelle que soit leur forme."
+      },
+      {
+        q: "Deux biens sont <strong>complémentaires</strong> lorsque :",
+        choices: [
+          "Ils se font concurrence sur le même marché",
+          "Ils sont produits à partir des mêmes matières premières",
+          "Ils sont consommés ensemble et l'un ne va pas sans l'autre",
+          "Leurs prix évoluent toujours dans le même sens"
+        ],
+        correct: 2,
+        expl: "Les biens complémentaires sont consommés ensemble : la voiture et l'essence, le café et le sucre. L'un n'a d'utilité qu'avec l'autre."
+      }
+    ]
+  },
+  {
+    title: "ZONE II — Structures de marché",
+    questions: [
+      {
+        q: "Un marché est en situation d'<strong>oligopole</strong> lorsque :",
+        choices: [
+          "Un seul offreur fait face à de nombreux demandeurs",
+          "Quelques offreurs font face à de nombreux demandeurs",
+          "De nombreux offreurs font face à de nombreux demandeurs",
+          "L'État est le seul producteur"
+        ],
+        correct: 1,
+        expl: "L'oligopole est une structure où quelques offreurs (peu nombreux) font face à de nombreux demandeurs. Ex. : la téléphonie mobile en France avec 4 opérateurs."
+      },
+      {
+        q: "Le marché de la téléphonie mobile en France est un exemple :",
+        choices: [
+          "De monopole",
+          "De concurrence pure et parfaite",
+          "D'oligopole",
+          "De marché public"
+        ],
+        correct: 2,
+        expl: "Quatre opérateurs (Orange, SFR, Bouygues Telecom, Free) se partagent le marché face à des dizaines de millions d'abonnés : c'est un oligopole."
+      },
+      {
+        q: "Qu'est-ce qu'une <strong>barrière à l'entrée</strong> ?",
+        choices: [
+          "Un droit de douane imposé aux importations",
+          "Un obstacle qui rend difficile ou impossible l'implantation d'une entreprise sur un marché",
+          "Une règle interdisant la publicité comparative",
+          "Un plafond de prix fixé par l'État"
+        ],
+        correct: 1,
+        expl: "Une barrière à l'entrée est un obstacle (juridique, économique, technologique ou commercial) qui limite l'arrivée de nouveaux concurrents sur un marché."
+      },
+      {
+        q: "La fabrication de semi-conducteurs présente de fortes barrières :",
+        choices: [
+          "Commerciales, car les marques existantes sont très connues",
+          "Juridiques, car les brevets sont nombreux",
+          "Technologiques, car seules quelques entreprises maîtrisent les équipements nécessaires",
+          "Économiques, car les prix sont fixés par l'État"
+        ],
+        correct: 2,
+        expl: "Seules quelques entreprises mondiales (TSMC, Samsung, Intel) maîtrisent les technologies et équipements nécessaires à la fabrication de puces, ce qui constitue une barrière technologique majeure."
+      },
+      {
+        q: "Une entreprise en situation de <strong>monopole</strong> bénéficie d'un pouvoir de marché. Cela signifie qu'elle peut :",
+        choices: [
+          "Fixer librement ses prix sans contrainte de la concurrence",
+          "Bénéficier de subventions publiques automatiques",
+          "Exporter sans taxes",
+          "Employer sans limite de salariés"
+        ],
+        correct: 0,
+        expl: "En situation de monopole (un seul offreur), l'entreprise dispose d'un pouvoir de marché qui lui permet d'imposer ses prix aux consommateurs, souvent à un niveau élevé."
+      },
+      {
+        q: "Plus les barrières à l'entrée sont <strong>élevées</strong>, l'intensité concurrentielle est :",
+        choices: [
+          "Plus forte, car les entreprises doivent innover davantage",
+          "Inchangée, les barrières n'ont aucun effet sur la concurrence",
+          "Plus faible, car peu de nouveaux concurrents peuvent entrer",
+          "Supérieure à celle d'un marché sans barrières"
+        ],
+        correct: 2,
+        expl: "Des barrières à l'entrée élevées limitent l'arrivée de nouveaux concurrents, ce qui réduit l'intensité concurrentielle sur le marché."
+      }
+    ]
+  },
+  {
+    title: "ZONE III — Indice IHH",
+    questions: [
+      {
+        q: "L'indice <strong>IHH</strong> (Herfindahl-Hirschmann) est calculé en :",
+        choices: [
+          "Additionnant les parts de marché de toutes les entreprises",
+          "Faisant la somme des parts de marché <em>au carré</em> de tous les offreurs",
+          "Divisant le chiffre d'affaires du leader par le total du marché",
+          "Multipliant les parts de marché entre elles"
+        ],
+        correct: 1,
+        expl: "L'IHH est la somme des parts de marché au carré de chaque offreur présent sur le marché. Plus il est élevé, plus le marché est concentré."
+      },
+      {
+        q: "Un marché est dit <strong>peu concentré</strong> lorsque :",
+        choices: [
+          "L'IHH est supérieur à 2 000",
+          "L'IHH est compris entre 1 000 et 2 000",
+          "L'IHH est inférieur à 1 000",
+          "L'IHH est égal à 10 000"
+        ],
+        correct: 2,
+        expl: "Un IHH inférieur à 1 000 indique un marché peu concentré. Entre 1 000 et 2 000 : relativement concentré. Au-delà de 2 000 : très concentré."
+      },
+      {
+        q: "Sur un marché avec un seul offreur (100 % de parts de marché), l'IHH vaut :",
+        choices: [
+          "100",
+          "1 000",
+          "5 000",
+          "10 000"
+        ],
+        correct: 3,
+        expl: "100² = 10 000. Un monopole produit donc un IHH de 10 000, ce qui est le maximum possible et indique une concentration absolue."
+      },
+      {
+        q: "Sur un marché de <strong>3 entreprises</strong> avec des parts de marché de 50 %, 30 % et 20 %, l'IHH est :",
+        choices: [
+          "100",
+          "2 600",
+          "3 800",
+          "5 100"
+        ],
+        correct: 2,
+        expl: "50² + 30² + 20² = 2 500 + 900 + 400 = 3 800. Ce marché est très concentré (IHH > 2 000)."
+      },
+      {
+        q: "Un marché compte 7 entreprises avec ces parts de marché : 40 %, 30 %, 10 %, 8 %, 5 %, 5 %, 2 %. L'IHH est :",
+        choices: [
+          "100",
+          "2 718",
+          "1 200",
+          "4 500"
+        ],
+        correct: 1,
+        expl: "40²+30²+10²+8²+5²+5²+2² = 1600+900+100+64+25+25+4 = 2 718. Marché très concentré (IHH > 2 000)."
+      },
+      {
+        q: "Un IHH de <strong>1 500</strong> indique que le marché est :",
+        choices: [
+          "Peu concentré",
+          "Relativement concentré",
+          "Très concentré",
+          "En situation de monopole"
+        ],
+        correct: 1,
+        expl: "Un IHH compris entre 1 000 et 2 000 indique un marché relativement concentré. Ce n'est ni très peu (< 1 000) ni très fortement (> 2 000) concentré."
+      }
+    ]
+  },
+  {
+    title: "ZONE IV — Prix d'équilibre & coût marginal",
+    questions: [
+      {
+        q: "Sur un marché concurrentiel, le <strong>prix d'équilibre</strong> est le prix auquel :",
+        choices: [
+          "Les entreprises réalisent le profit maximum",
+          "L'offre est égale à la demande",
+          "L'État fixe le prix minimum légal",
+          "La demande dépasse toujours l'offre"
+        ],
+        correct: 1,
+        expl: "Le prix d'équilibre est la valeur pour laquelle l'offre et la demande sont égales, permettant l'échange entre les vendeurs et les acheteurs."
+      },
+      {
+        q: "Si la demande d'un produit <strong>augmente</strong>, que se passe-t-il sur son prix ?",
+        choices: [
+          "Le prix diminue car l'entreprise doit vendre plus",
+          "Le prix augmente car la demande est plus forte",
+          "Le prix reste stable car il est fixé par l'État",
+          "Le prix est indépendant de la demande"
+        ],
+        correct: 1,
+        expl: "Plus la demande est importante, plus le prix du produit sera élevé. C'est la loi de l'offre et de la demande."
+      },
+      {
+        q: "Qu'est-ce que le <strong>coût marginal</strong> ?",
+        choices: [
+          "Le coût moyen de production sur toute l'année",
+          "Le coût fixe par unité produite",
+          "Le coût de production d'une unité supplémentaire",
+          "Le bénéfice réalisé sur la dernière vente"
+        ],
+        correct: 2,
+        expl: "Le coût marginal est le coût de production de la dernière unité produite (ou d'une unité supplémentaire). En situation de concurrence, le prix converge vers ce coût."
+      },
+      {
+        q: "En situation de <strong>concurrence</strong>, le prix converge vers :",
+        choices: [
+          "Le coût moyen",
+          "Le prix fixé par le leader du marché",
+          "Le coût marginal de production",
+          "Le prix maximal que les consommateurs acceptent de payer"
+        ],
+        correct: 2,
+        expl: "En concurrence, chaque entreprise produit tant qu'une unité supplémentaire rapporte plus qu'elle ne coûte, ce qui fait converger le prix vers le coût marginal."
+      },
+      {
+        q: "En situation de <strong>monopole</strong> ou d'<strong>oligopole</strong>, par rapport à un marché concurrentiel, les prix sont généralement :",
+        choices: [
+          "Plus bas, car les grandes entreprises réalisent des économies d'échelle",
+          "Plus élevés, car les producteurs peuvent imposer leurs prix",
+          "Identiques, la structure du marché n'a aucun effet",
+          "Fixés par l'État à un niveau inférieur"
+        ],
+        correct: 1,
+        expl: "En monopole ou oligopole, les producteurs disposent d'un pouvoir de marché qui leur permet de fixer des prix plus élevés qu'en situation de concurrence."
+      },
+      {
+        q: "La situation de concurrence est avantageuse pour le consommateur car elle conduit à :",
+        choices: [
+          "Des prix élevés garantissant la qualité",
+          "Des prix bas car ils convergent vers le coût marginal",
+          "Une production réduite pour maintenir les prix",
+          "Une hausse des marges des entreprises"
+        ],
+        correct: 1,
+        expl: "En concurrence, le prix converge vers le coût marginal (le coût le plus bas possible), ce qui bénéficie au consommateur sous forme de prix bas."
+      }
+    ]
+  },
+  {
+    title: "ZONE V — Élasticités",
+    questions: [
+      {
+        q: "L'<strong>élasticité prix-demande</strong> mesure :",
+        choices: [
+          "La variation du prix en fonction de la production",
+          "La variation en % de la quantité demandée quand le prix varie de 1 %",
+          "La sensibilité de l'offre aux variations de demande",
+          "Le rapport entre profit et chiffre d'affaires"
+        ],
+        correct: 1,
+        expl: "L'élasticité prix-demande mesure la variation en % de la quantité demandée d'un bien lorsque son prix varie de 1 %."
+      },
+      {
+        q: "La formule de l'élasticité prix-demande est :",
+        choices: [
+          "(Variation du prix / prix) ÷ (Variation de la demande / demande)",
+          "(Variation de la demande / demande) ÷ (Variation du prix / prix)",
+          "(Variation du prix × demande) / (Variation de la demande × prix)",
+          "Variation de la demande − Variation du prix"
+        ],
+        correct: 1,
+        expl: "L'élasticité = (Δ demande / demande) ÷ (Δ prix / prix). C'est le rapport de la variation relative de la demande sur la variation relative du prix."
+      },
+      {
+        q: "Le prix d'un billet de cinéma augmente de <strong>10 %</strong>, la fréquentation baisse de <strong>15 %</strong>. L'élasticité prix-demande est :",
+        choices: [
+          "+1,5",
+          "−1,5",
+          "+0,67",
+          "−0,67"
+        ],
+        correct: 1,
+        expl: "−15 % ÷ 10 % = −1,5. L'élasticité est négative (demande inverse du prix) et supérieure à 1 en valeur absolue : la demande est très sensible aux variations de prix."
+      },
+      {
+        q: "L'élasticité prix-demande est <strong>généralement négative</strong>. Cela signifie que :",
+        choices: [
+          "Quand le prix monte, la demande monte aussi",
+          "Le prix et la demande évoluent toujours dans le même sens",
+          "Quand le prix augmente, la demande diminue",
+          "La demande est totalement insensible au prix"
+        ],
+        correct: 2,
+        expl: "L'élasticité négative traduit la relation inverse entre prix et demande : quand le prix monte, les consommateurs achètent moins."
+      },
+      {
+        q: "L'<strong>élasticité croisée</strong> entre le café et le thé est <strong>positive</strong>. Cela signifie que ces biens sont :",
+        choices: [
+          "Complémentaires",
+          "Indépendants",
+          "Substituables",
+          "Identiques"
+        ],
+        correct: 2,
+        expl: "Une élasticité croisée positive indique que les biens sont substituables : si le prix du café augmente, la demande de thé augmente car les consommateurs se reportent sur l'autre bien."
+      },
+      {
+        q: "La hausse du prix de l'essence entraîne une <strong>baisse</strong> de la demande de voitures. L'élasticité croisée entre ces deux biens est donc :",
+        choices: [
+          "Positive : ce sont des biens substituables",
+          "Nulle : ce sont des biens indépendants",
+          "Négative : ce sont des biens complémentaires",
+          "Indéterminée, on ne peut pas calculer l'élasticité croisée ici"
+        ],
+        correct: 2,
+        expl: "Une élasticité croisée négative indique que les biens sont complémentaires : la hausse du prix de l'un entraîne la baisse de la demande de l'autre, car ils sont consommés ensemble."
+      }
+    ]
+  }
+];
+
+const ROOM_NAMES = [
+  "Le marché",
+  "Structures de marché",
+  "Indice IHH",
+  "Prix d'équilibre",
+  "Élasticités"
+];
+
+// ══════════════════════════════════════════
+//  ÉTAT DU JEU
+// ══════════════════════════════════════════
+let playerName = "";
+let lives = 3;
+let score = 0;
+let currentRoom = 0;
+let currentQ = 0;
+let roomScores = [0, 0, 0, 0, 0];
+let answered = false;
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startGame() {
+  playerName = document.getElementById('player-name').value.trim() || "Anonyme";
+  lives = 3; score = 0; currentRoom = 0; currentQ = 0;
+  roomScores = [0,0,0,0,0];
+  updateHUD();
+  loadQuestion();
+  show('screen-room');
+}
+
+function restartGame() { show('screen-intro'); }
+
+function updateHUD() {
+  document.getElementById('score-display').textContent = score;
+  [1,2,3].forEach(i => {
+    document.getElementById('life-'+i).classList.toggle('lost', i > lives);
+  });
+  for(let i=0;i<5;i++){
+    const d = document.getElementById('rdot-'+i);
+    d.className = 'room-dot';
+    if(i < currentRoom) d.classList.add('done');
+    else if(i === currentRoom) d.classList.add('active');
+  }
+}
+
+function loadQuestion() {
+  answered = false;
+  const room = ROOMS[currentRoom];
+  const q = room.questions[currentQ];
+
+  document.getElementById('room-label').textContent = `Salle ${currentRoom+1} / 5`;
+  document.getElementById('room-title').textContent = room.title;
+  document.getElementById('room-progress').textContent = `Question ${currentQ+1} / ${room.questions.length}`;
+  document.getElementById('q-text').innerHTML = q.q;
+
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.innerHTML = `<span class="choice-letter">${letters[i]}</span><span>${c}</span>`;
+    btn.onclick = () => answer(i, q.correct, q.expl);
+    choicesDiv.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  fb.textContent = '';
+  const btnN = document.getElementById('btn-next');
+  btnN.className = 'btn-next';
+
+  document.getElementById('question-card').classList.remove('fade-in');
+  void document.getElementById('question-card').offsetWidth;
+  document.getElementById('question-card').classList.add('fade-in');
+}
+
+function answer(chosen, correct, expl) {
+  if(answered) return;
+  answered = true;
+
+  const btns = document.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[correct].classList.add('correct');
+
+  const fb = document.getElementById('feedback-box');
+
+  if(chosen === correct) {
+    const pts = 5;
+    score += pts;
+    roomScores[currentRoom] += pts;
+    updateHUD();
+    btns[chosen].classList.add('correct');
+    fb.className = 'feedback-box ok show';
+    fb.innerHTML = `✔ Bonne réponse ! (+${pts} pts)<br><span style="opacity:.8;font-size:.88rem">${expl}</span>`;
+  } else {
+    btns[chosen].classList.add('wrong');
+    lives--;
+    updateHUD();
+    fb.className = 'feedback-box ko show';
+    fb.innerHTML = `✘ Mauvaise réponse. La bonne réponse est la <strong>proposition ${['A','B','C','D'][correct]}</strong>.<br><span style="opacity:.8;font-size:.88rem">${expl}</span>`;
+    if(lives <= 0) {
+      setTimeout(gameOver, 1400);
+      return;
+    }
+  }
+
+  document.getElementById('btn-next').className = 'btn-next show';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if(currentQ >= ROOMS[currentRoom].questions.length) {
+    roomComplete();
+  } else {
+    loadQuestion();
+  }
+}
+
+function roomComplete() {
+  if(currentRoom >= 4) {
+    victory();
+    return;
+  }
+  document.getElementById('trans-title').textContent = `Zone ${currentRoom+1} déverrouillée !`;
+  document.getElementById('trans-score').textContent = `Score : ${score} pts — Zone : +${roomScores[currentRoom]} pts`;
+  document.getElementById('trans-next').textContent = `Prochaine zone : ${ROOM_NAMES[currentRoom+1]}`;
+  show('screen-transition');
+}
+
+function enterNextRoom() {
+  currentRoom++;
+  currentQ = 0;
+  updateHUD();
+  loadQuestion();
+  show('screen-room');
+}
+
+function gameOver() {
+  const block = document.getElementById('buy-life-block');
+  if(score >= 30) {
+    document.getElementById('remaining-pts').textContent = score;
+    block.style.display = 'block';
+  } else {
+    block.style.display = 'none';
+  }
+  show('screen-gameover');
+}
+
+function buyLife() {
+  // Déduire 30 pts en commençant par la salle courante
+  let toDeduce = 30;
+  for(let r = currentRoom; r >= 0 && toDeduce > 0; r--) {
+    const take = Math.min(roomScores[r], toDeduce);
+    roomScores[r] -= take;
+    toDeduce -= take;
+  }
+  score -= 30;
+  lives = 1;
+  updateHUD();
+  currentQ = 0;
+  loadQuestion();
+  show('screen-room');
+}
+
+function victory() {
+  const pct = score / 150;
+  let grade, badge, color;
+  if(pct >= .85) { grade='A — Excellent'; badge='🏆'; color='#00ffe7'; }
+  else if(pct >= .70) { grade='B — Bien'; badge='🥈'; color='#ffd54f'; }
+  else if(pct >= .55) { grade='C — Assez bien'; badge='🥉'; color='#ffb74d'; }
+  else { grade='D — À revoir'; badge='📚'; color='#ff7043'; }
+
+  document.getElementById('vic-badge').textContent = badge;
+  document.getElementById('vic-grade').textContent = grade;
+  document.getElementById('vic-grade').style.color = color;
+  document.getElementById('vic-total').textContent = `Score final : ${score} / 150 pts`;
+
+  const rows = document.getElementById('breakdown-rows');
+  rows.innerHTML = '';
+  ROOM_NAMES.forEach((n,i) => {
+    const div = document.createElement('div');
+    div.className = 'breakdown-row';
+    div.innerHTML = `<span class="breakdown-room">Zone ${i+1} — ${n}</span><span class="breakdown-pts">${roomScores[i]} / 30 pts</span>`;
+    rows.appendChild(div);
+  });
+
+  show('screen-victory');
+}
+
+function sendScore() {
+  const pct = Math.round(score/150*100);
+  let mention = score>=127?'A':score>=105?'B':score>=82?'C':'D';
+  const breakdown = ROOM_NAMES.map((n,i)=>`  Zone ${i+1} — ${n} : ${roomScores[i]}/30`).join('\n');
+  const body = `Résultats — Escape Game Économie Ch.10\n${'━'.repeat(42)}\nÉlève : ${playerName}\nScore : ${score} / 150 pts (${pct} %)\nMention : ${mention}\n\nDétail par zone :\n${breakdown}\n${'━'.repeat(42)}\n© 2026 Christophe Chaudronnier`;
+  const subject = `[Éco Ch.10] Escape Game — ${playerName} — ${score}/150`;
+  const mailtoUrl = `mailto:c.chaudronnier@ejda.fr?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoUrl;
+}
+</script>
+</body>
+</html>
