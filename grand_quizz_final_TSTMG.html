@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM Terminale STMG — Économie & Droit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1e3c;
+    --navy-light: #1a2f5a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --cream: #faf8f4;
+    --text: #1a1a2e;
+    --muted: #5a6275;
+    --border: #d8d0c0;
+    --correct: #1a6b3c;
+    --correct-bg: #eaf7f0;
+    --wrong: #8b1a1a;
+    --wrong-bg: #fdf0f0;
+    --eco-color: #1a4b6e;
+    --droit-color: #4a1a5e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--navy);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--gold);
+  }
+  .site-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: #fff;
+    letter-spacing: 0.02em;
+  }
+  .site-header .subtitle {
+    font-size: 0.8rem;
+    color: var(--gold-light);
+    font-style: italic;
+    margin-top: 0.15rem;
+  }
+  .progress-global {
+    text-align: right;
+    color: var(--gold-light);
+    font-size: 0.85rem;
+  }
+  .progress-global strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: #fff;
+    display: block;
+  }
+
+  /* ── ÉCRAN D'ACCUEIL ── */
+  #screen-intro {
+    max-width: 680px;
+    margin: 4rem auto;
+    padding: 2.5rem;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--gold);
+    border-radius: 2px;
+    text-align: center;
+  }
+  #screen-intro h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--navy);
+    margin-bottom: 1rem;
+  }
+  #screen-intro p {
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 0.6rem;
+    font-size: 0.95rem;
+  }
+  .intro-badges {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+  }
+  .badge {
+    padding: 0.4rem 1rem;
+    border-radius: 2px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .badge-eco { background: #e8f0f7; color: var(--eco-color); border: 1px solid #b0c8e0; }
+  .badge-droit { background: #f0e8f7; color: var(--droit-color); border: 1px solid #c8b0e0; }
+
+  .field-group {
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+  .field-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .field-group input {
+    width: 100%;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    font-family: 'Source Serif 4', serif;
+    font-size: 1rem;
+    color: var(--text);
+    background: var(--cream);
+    transition: border-color 0.2s;
+  }
+  .field-group input:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: #fff;
+  }
+
+  .btn-start {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    padding: 0.85rem 2.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+  }
+  .btn-start:hover { background: var(--navy-light); transform: translateY(-1px); }
+
+  /* ── QUESTION ── */
+  #screen-question { display: none; }
+
+  .question-wrapper {
+    max-width: 760px;
+    margin: 2.5rem auto;
+    padding: 0 1.5rem;
+  }
+
+  /* Barre de progression */
+  .progress-bar-outer {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--gold);
+    transition: width 0.4s ease;
+    border-radius: 2px;
+  }
+
+  /* Carte question */
+  .question-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(15,30,60,0.06);
+  }
+
+  .question-header {
+    padding: 1rem 1.5rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .q-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .q-matiere {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+  }
+  .q-matiere.eco { background: #e8f0f7; color: var(--eco-color); }
+  .q-matiere.droit { background: #f0e8f7; color: var(--droit-color); }
+  .q-theme {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-left: auto;
+  }
+
+  .question-body {
+    padding: 1.8rem 1.5rem 1.5rem;
+  }
+  .question-text {
+    font-family: 'Source Serif 4', serif;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+
+  /* Propositions */
+  .propositions { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .prop-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1.5px solid var(--border);
+    background: var(--cream);
+    border-radius: 2px;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text);
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .prop-btn:hover:not(:disabled) {
+    border-color: var(--navy);
+    background: #fff;
+  }
+  .prop-letter {
+    flex-shrink: 0;
+    width: 1.6rem;
+    height: 1.6rem;
+    background: var(--navy);
+    color: #fff;
+    border-radius: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-top: 0.05rem;
+  }
+  .prop-btn.correct {
+    border-color: var(--correct);
+    background: var(--correct-bg);
+  }
+  .prop-btn.correct .prop-letter { background: var(--correct); }
+  .prop-btn.wrong {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .prop-btn.wrong .prop-letter { background: var(--wrong); }
+  .prop-btn:disabled { cursor: default; }
+
+  /* Feedback */
+  .feedback {
+    display: none;
+    margin-top: 1.2rem;
+    padding: 0.75rem 1rem;
+    border-radius: 2px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--correct-bg); color: var(--correct); border: 1px solid #a8d8bc; }
+  .feedback.ko { background: var(--wrong-bg); color: var(--wrong); border: 1px solid #e0b0b0; }
+  .feedback strong { font-weight: 700; }
+
+  /* Footer card */
+  .question-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .score-inline {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .score-inline strong { color: var(--text); }
+  .btn-next {
+    background: var(--navy);
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1.8rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, background 0.2s;
+  }
+  .btn-next.visible { opacity: 1; pointer-events: all; }
+  .btn-next:hover { background: var(--navy-light); }
+
+  /* ── RÉSULTATS ── */
+  #screen-results { display: none; }
+
+  .results-wrapper {
+    max-width: 760px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+  }
+  .results-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--gold);
+    padding: 2.5rem;
+    text-align: center;
+  }
+  .results-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--navy);
+    margin-bottom: 0.4rem;
+  }
+  .results-name { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; font-style: italic; }
+  .score-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .score-detail { font-size: 0.9rem; color: var(--muted); margin-bottom: 2rem; }
+
+  /* Grille de résultats par matière */
+  .results-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+  .split-box {
+    padding: 1.2rem;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+  }
+  .split-box.eco { border-left: 3px solid var(--eco-color); }
+  .split-box.droit { border-left: 3px solid var(--droit-color); }
+  .split-box h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .split-box.eco h3 { color: var(--eco-color); }
+  .split-box.droit h3 { color: var(--droit-color); }
+  .split-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--text);
+  }
+  .split-sub { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* Mention */
+  .mention {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 2px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin: 1rem 0 1.5rem;
+  }
+  .mention-A { background: #eaf7f0; color: var(--correct); border: 1px solid #a8d8bc; }
+  .mention-B { background: #e8f0f7; color: var(--eco-color); border: 1px solid #b0c8e0; }
+  .mention-C { background: #fdf6e3; color: #7a5a00; border: 1px solid #dfc870; }
+  .mention-D { background: var(--wrong-bg); color: var(--wrong); border: 1px solid #e0b0b0; }
+
+  .btn-send {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 0.85rem 2.5rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+    margin-right: 0.5rem;
+  }
+  .btn-send:hover { background: var(--gold-light); }
+  .btn-retry {
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--navy);
+    padding: 0.85rem 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .btn-retry:hover { background: var(--navy); color: #fff; }
+
+  .send-info { font-size: 0.8rem; color: var(--muted); margin-top: 0.8rem; font-style: italic; }
+
+  /* Correction détaillée */
+  .correction-toggle {
+    margin-top: 1.5rem;
+    background: transparent;
+    color: var(--navy);
+    border: 1px solid var(--border);
+    padding: 0.6rem 1.2rem;
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .correction-toggle:hover { background: var(--cream); }
+
+  #correction-list { display: none; margin-top: 1.5rem; text-align: left; }
+  .corr-item {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .corr-icon { flex-shrink: 0; font-size: 1rem; margin-top: 0.05rem; }
+  .corr-q { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.15rem; }
+  .corr-bonne { color: var(--correct); font-weight: 600; font-size: 0.82rem; margin-top: 0.1rem; }
+
+  /* Copyright */
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 600px) {
+    .q-theme { display: none; }
+    .results-split { grid-template-columns: 1fr; }
+    .score-display { font-size: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div>
+    <h1>QCM Terminale STMG</h1>
+    <div class="subtitle">Économie &amp; Droit — 100 questions</div>
+  </div>
+  <div class="progress-global" id="header-progress" style="display:none">
+    <strong id="hp-num">0/100</strong>
+    <span id="hp-score">Score : 0</span>
+  </div>
+</header>
+
+<!-- ÉCRAN INTRO -->
+<div id="screen-intro">
+  <h2>Grand Quiz TSTMG</h2>
+  <p>50 questions d'<strong>Économie</strong> et 50 questions de <strong>Droit</strong>.</p>
+  <p>Barème : +0,5 pt par bonne réponse · −0,25 pt par mauvaise réponse · 0 pt si abstention · Note sur 20.</p>
+  <div class="intro-badges">
+    <span class="badge badge-eco">50 questions Économie</span>
+    <span class="badge badge-droit">50 questions Droit</span>
+  </div>
+  <div class="field-group">
+    <label for="student-name">Votre prénom et nom</label>
+    <input type="text" id="student-name" placeholder="Ex : Marie Dupont" autocomplete="name">
+  </div>
+  <button class="btn-start" onclick="startQuiz()">Commencer le quiz</button>
+</div>
+
+<!-- ÉCRAN QUESTION -->
+<div id="screen-question">
+  <div class="question-wrapper">
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progress-bar"></div>
+    </div>
+    <div class="question-card">
+      <div class="question-header">
+        <span class="q-number" id="q-number">Question 1 / 100</span>
+        <span class="q-matiere" id="q-matiere">Économie</span>
+        <span class="q-theme" id="q-theme"></span>
+      </div>
+      <div class="question-body">
+        <p class="question-text" id="question-text"></p>
+        <div class="propositions" id="propositions"></div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+      <div class="question-footer">
+        <div class="score-inline">
+          Score : <strong id="score-current">0</strong> pts
+          &nbsp;|&nbsp; Réponses : <strong id="answered-count">0</strong>/100
+        </div>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">Suivant →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ÉCRAN RÉSULTATS -->
+<div id="screen-results">
+  <div class="results-wrapper">
+    <div class="results-card">
+      <h2>Résultats</h2>
+      <p class="results-name" id="results-name"></p>
+      <div class="score-display" id="results-note">—</div>
+      <div class="score-detail" id="results-detail"></div>
+      <div id="results-mention"></div>
+      <div class="results-split">
+        <div class="split-box eco">
+          <h3>Économie</h3>
+          <div class="split-score" id="eco-score">—</div>
+          <div class="split-sub" id="eco-detail"></div>
+        </div>
+        <div class="split-box droit">
+          <h3>Droit</h3>
+          <div class="split-score" id="droit-score">—</div>
+          <div class="split-sub" id="droit-detail"></div>
+        </div>
+      </div>
+      <div>
+        <button class="btn-send" onclick="sendScore()">📧 Envoyer les résultats au professeur</button>
+        <button class="btn-retry" onclick="restartQuiz()">Recommencer</button>
+      </div>
+      <p class="send-info">Les résultats seront envoyés à c.chaudronnier@ejda.fr via votre messagerie.</p>
+      <button class="correction-toggle" onclick="toggleCorrection()">▼ Voir la correction détaillée</button>
+      <div id="correction-list"></div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 Christophe Chaudronnier — Terminale STMG — Usage pédagogique</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    id: 1,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "Le PIB mesure :",
+    propositions: [
+    "La richesse totale accumulée par un pays",
+    "La somme des exportations d'un pays",
+    "La valeur ajoutée de toutes les unités résidentes sur un territoire donné sur une année",
+    "Le revenu disponible des ménages"
+    ],
+    reponse: 2
+  },
+  {
+    id: 2,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "La valeur ajoutée d'une entreprise se calcule ainsi :",
+    propositions: [
+    "Bénéfice + amortissements",
+    "Chiffre d'affaires − salaires",
+    "Recettes − charges fiscales",
+    "Production − consommations intermédiaires"
+    ],
+    reponse: 3
+  },
+  {
+    id: 3,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "Le taux de croissance économique mesure :",
+    propositions: [
+    "L'évolution du PIB en volume d'une année sur l'autre",
+    "L'évolution du niveau général des prix",
+    "L'évolution du taux de chômage",
+    "L'évolution du revenu des ménages"
+    ],
+    reponse: 0
+  },
+  {
+    id: 4,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "La productivité du travail se mesure par :",
+    propositions: [
+    "Le salaire moyen divisé par le nombre de salariés",
+    "La valeur ajoutée divisée par les investissements",
+    "Le rapport entre la production et le nombre d'heures travaillées",
+    "Le rapport entre le PIB et la population totale"
+    ],
+    reponse: 2
+  },
+  {
+    id: 5,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "Le progrès technique est qualifié d'« incorporé » lorsqu'il :",
+    propositions: [
+    "Résulte uniquement de la formation des salariés",
+    "Se diffuse sans investissement supplémentaire",
+    "Provient de la recherche publique",
+    "Est intégré dans les équipements et machines"
+    ],
+    reponse: 3
+  },
+  {
+    id: 6,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "Le développement durable repose sur trois piliers. Lequel n'en fait PAS partie ?",
+    propositions: [
+    "Environnemental",
+    "Technologique",
+    "Social",
+    "Économique"
+    ],
+    reponse: 1
+  },
+  {
+    id: 7,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "L'IDH (Indice de Développement Humain) prend en compte :",
+    propositions: [
+    "Uniquement le PIB par habitant",
+    "Le revenu médian et le taux de pauvreté",
+    "Le PIB, le taux de chômage et l'inflation",
+    "Le PIB, l'espérance de vie et le niveau d'éducation"
+    ],
+    reponse: 3
+  },
+  {
+    id: 8,
+    matiere: "Économie",
+    theme: "Croissance et création de richesses",
+    question: "Une croissance économique est dite « intensive » lorsqu'elle résulte principalement :",
+    propositions: [
+    "De l'augmentation des exportations",
+    "Des gains de productivité",
+    "D'une augmentation des facteurs de production",
+    "De l'accroissement de la population active"
+    ],
+    reponse: 1
+  },
+  {
+    id: 9,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "Selon le Bureau International du Travail (BIT), est chômeur toute personne qui :",
+    propositions: [
+    "Est sans emploi, disponible et en recherche active d'emploi",
+    "Est inscrite à France Travail",
+    "Ne perçoit aucun revenu du travail",
+    "A perdu involontairement son emploi"
+    ],
+    reponse: 0
+  },
+  {
+    id: 10,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "Le chômage dit « frictionnel » désigne :",
+    propositions: [
+    "Le chômage des travailleurs non qualifiés",
+    "Le chômage lié à une insuffisance de la demande globale",
+    "Le chômage temporaire lié aux transitions entre emplois",
+    "Le chômage causé par l'automatisation"
+    ],
+    reponse: 2
+  },
+  {
+    id: 11,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "L'inflation se définit comme :",
+    propositions: [
+    "Une augmentation ponctuelle du prix d'un bien",
+    "Une hausse des salaires supérieure à la croissance",
+    "Une baisse du pouvoir d'achat des ménages",
+    "Une hausse durable et généralisée du niveau des prix"
+    ],
+    reponse: 3
+  },
+  {
+    id: 12,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "La déflation désigne :",
+    propositions: [
+    "Une politique de réduction du déficit public",
+    "Une baisse durable et généralisée du niveau des prix",
+    "Une diminution de la masse monétaire",
+    "Une baisse du taux d'inflation"
+    ],
+    reponse: 1
+  },
+  {
+    id: 13,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "La désinflation correspond à :",
+    propositions: [
+    "Une stabilité des prix sur deux années consécutives",
+    "Une baisse des prix",
+    "Un ralentissement du rythme de hausse des prix",
+    "Une politique monétaire restrictive"
+    ],
+    reponse: 2
+  },
+  {
+    id: 14,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "Le taux de chômage est calculé comme le rapport entre :",
+    propositions: [
+    "Le nombre de chômeurs et la population en âge de travailler",
+    "Le nombre de chômeurs et la population active",
+    "Le nombre de demandeurs d'emploi inscrits et la population active occupée",
+    "Le nombre de chômeurs et la population totale"
+    ],
+    reponse: 1
+  },
+  {
+    id: 15,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "Lequel de ces effets est un risque associé à l'inflation ?",
+    propositions: [
+    "Hausse du pouvoir d'achat des créanciers",
+    "Stimulation de l'épargne de précaution",
+    "Érosion du pouvoir d'achat des ménages à revenus fixes",
+    "Augmentation de la valeur réelle des dettes"
+    ],
+    reponse: 2
+  },
+  {
+    id: 16,
+    matiere: "Économie",
+    theme: "Déséquilibres macroéconomiques",
+    question: "Le taux de chômage en France est mesuré officiellement par :",
+    propositions: [
+    "Le ministère du Travail",
+    "La Banque de France",
+    "France Travail (ex-Pôle emploi)",
+    "L'INSEE selon les critères du BIT"
+    ],
+    reponse: 3
+  },
+  {
+    id: 17,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "Le financement direct (ou désintermédié) consiste à :",
+    propositions: [
+    "Recourir au crédit inter-entreprises",
+    "Se financer via l'émission de titres sur les marchés financiers",
+    "Emprunter auprès d'une banque commerciale",
+    "Faire appel aux aides publiques"
+    ],
+    reponse: 1
+  },
+  {
+    id: 18,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "Le marché primaire est le marché sur lequel :",
+    propositions: [
+    "La Banque centrale intervient",
+    "Les banques se prêtent entre elles",
+    "Sont émis pour la première fois les titres financiers",
+    "S'échangent les titres déjà émis"
+    ],
+    reponse: 2
+  },
+  {
+    id: 19,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "Une obligation est :",
+    propositions: [
+    "Un titre de créance qui donne droit à des intérêts",
+    "Un dépôt à terme bancaire",
+    "Un contrat d'assurance-vie",
+    "Un titre de propriété d'une entreprise"
+    ],
+    reponse: 0
+  },
+  {
+    id: 20,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "Le rôle principal d'une banque commerciale est :",
+    propositions: [
+    "De fixer les taux directeurs",
+    "De gérer les réserves de change de l'État",
+    "D'émettre de la monnaie fiduciaire",
+    "D'accorder des crédits et collecter des dépôts"
+    ],
+    reponse: 3
+  },
+  {
+    id: 21,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "La Banque centrale européenne (BCE) a pour mission principale :",
+    propositions: [
+    "De superviser les banques commerciales françaises",
+    "D'assurer la stabilité des prix dans la zone euro",
+    "De financer les déficits publics des États membres",
+    "De fixer le taux de change de l'euro"
+    ],
+    reponse: 1
+  },
+  {
+    id: 22,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "La création monétaire par les banques commerciales résulte principalement :",
+    propositions: [
+    "Des transferts du Trésor public",
+    "Des dépôts des épargnants",
+    "De l'octroi de crédits",
+    "De l'impression de billets"
+    ],
+    reponse: 2
+  },
+  {
+    id: 23,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "Le taux directeur de la BCE influence :",
+    propositions: [
+    "Le taux de change du dollar",
+    "Le coût du crédit dans l'ensemble de l'économie",
+    "Directement les salaires des fonctionnaires",
+    "Le montant des impôts prélevés"
+    ],
+    reponse: 1
+  },
+  {
+    id: 24,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "L'autofinancement désigne :",
+    propositions: [
+    "Le financement par subventions publiques",
+    "Le financement par émission d'actions",
+    "Le financement d'un investissement par les ressources propres de l'entreprise",
+    "Le financement par emprunt bancaire"
+    ],
+    reponse: 2
+  },
+  {
+    id: 25,
+    matiere: "Économie",
+    theme: "Financement de l'économie",
+    question: "Une action donne à son détenteur :",
+    propositions: [
+    "La garantie de récupérer le capital investi",
+    "Un droit de vote uniquement lors des assemblées extraordinaires",
+    "Un droit à des intérêts fixes",
+    "Un droit de propriété et potentiellement des dividendes"
+    ],
+    reponse: 3
+  },
+  {
+    id: 26,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "La spécialisation internationale repose selon D. Ricardo sur :",
+    propositions: [
+    "Les avantages comparatifs de chaque nation",
+    "La dotation en ressources naturelles",
+    "Les avantages absolus de chaque nation",
+    "La taille du marché intérieur"
+    ],
+    reponse: 0
+  },
+  {
+    id: 27,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "Une firme multinationale (FMN) se caractérise par :",
+    propositions: [
+    "L'appartenance au secteur public",
+    "La détention d'unités de production dans plusieurs pays",
+    "L'exportation exclusive de ses produits",
+    "Un chiffre d'affaires supérieur au PIB d'un pays"
+    ],
+    reponse: 1
+  },
+  {
+    id: 28,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "La balance commerciale enregistre :",
+    propositions: [
+    "Les mouvements de capitaux à long terme",
+    "Les transferts unilatéraux entre États",
+    "L'ensemble des flux financiers entre résidents et non-résidents",
+    "Les échanges de biens (exportations − importations)"
+    ],
+    reponse: 3
+  },
+  {
+    id: 29,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "Un déficit de la balance commerciale signifie que :",
+    propositions: [
+    "La monnaie nationale se déprécie automatiquement",
+    "Les importations sont supérieures aux exportations",
+    "Les exportations sont supérieures aux importations",
+    "Le pays est endetté vis-à-vis du FMI"
+    ],
+    reponse: 1
+  },
+  {
+    id: 30,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "La délocalisation consiste pour une entreprise à :",
+    propositions: [
+    "Fusionner avec une entreprise étrangère",
+    "Importer des composants pour réduire ses coûts",
+    "Transférer tout ou partie de sa production dans un autre pays",
+    "Ouvrir une filiale commerciale à l'étranger"
+    ],
+    reponse: 2
+  },
+  {
+    id: 31,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "L'OMC (Organisation Mondiale du Commerce) a pour mission principale :",
+    propositions: [
+    "De libéraliser et réguler les échanges commerciaux internationaux",
+    "De fixer les taux de change entre monnaies",
+    "D'octroyer des prêts aux pays en développement",
+    "De fixer les droits de douane communs"
+    ],
+    reponse: 0
+  },
+  {
+    id: 32,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "Un droit de douane est :",
+    propositions: [
+    "Un quota limitant les importations",
+    "Une subvention accordée aux exportateurs nationaux",
+    "Une norme technique imposée aux produits étrangers",
+    "Une taxe prélevée sur les marchandises importées"
+    ],
+    reponse: 3
+  },
+  {
+    id: 33,
+    matiere: "Économie",
+    theme: "Mondialisation",
+    question: "La mondialisation financière se caractérise notamment par :",
+    propositions: [
+    "La hausse des droits de douane",
+    "La libre circulation des capitaux à l'échelle mondiale",
+    "L'unification des politiques fiscales mondiales",
+    "La disparition des banques centrales nationales"
+    ],
+    reponse: 1
+  },
+  {
+    id: 34,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "La politique budgétaire expansionniste consiste à :",
+    propositions: [
+    "Baisser les taux d'intérêt directeurs",
+    "Réduire les dépenses publiques et augmenter les impôts",
+    "Augmenter les dépenses publiques et/ou baisser les impôts",
+    "Réduire la masse monétaire en circulation"
+    ],
+    reponse: 2
+  },
+  {
+    id: 35,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "Le déficit public désigne :",
+    propositions: [
+    "La différence entre exportations et importations",
+    "Le solde négatif entre recettes et dépenses des administrations publiques",
+    "La dette totale de l'État",
+    "L'excédent des recettes publiques sur les dépenses"
+    ],
+    reponse: 1
+  },
+  {
+    id: 36,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "La dette publique représente :",
+    propositions: [
+    "Les emprunts des entreprises publiques uniquement",
+    "La dette des ménages envers l'État",
+    "L'accumulation des déficits publics passés",
+    "Le déficit budgétaire de l'année en cours"
+    ],
+    reponse: 2
+  },
+  {
+    id: 37,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "Les prélèvements obligatoires comprennent :",
+    propositions: [
+    "Les cotisations sociales patronales uniquement",
+    "Les impôts et les cotisations sociales",
+    "Uniquement les impôts directs",
+    "Les taxes sur la consommation uniquement"
+    ],
+    reponse: 1
+  },
+  {
+    id: 38,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "La politique monétaire dans la zone euro est conduite par :",
+    propositions: [
+    "La Banque centrale européenne (BCE)",
+    "Le Parlement européen",
+    "Chaque banque centrale nationale de manière indépendante",
+    "Le Fonds monétaire international"
+    ],
+    reponse: 0
+  },
+  {
+    id: 39,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "Une politique de rigueur (ou d'austérité) vise à :",
+    propositions: [
+    "Augmenter la masse monétaire en circulation",
+    "Relancer la demande par l'investissement public",
+    "Baisser les taux directeurs pour stimuler le crédit",
+    "Réduire le déficit public en diminuant les dépenses et/ou en augmentant les prélèvements"
+    ],
+    reponse: 3
+  },
+  {
+    id: 40,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "Les « stabilisateurs automatiques » désignent :",
+    propositions: [
+    "Les politiques d'encadrement des prix",
+    "Des mécanismes budgétaires qui atténuent automatiquement les fluctuations économiques",
+    "Des dispositifs volontaires de régulation de la BCE",
+    "Les règles du pacte de stabilité européen"
+    ],
+    reponse: 1
+  },
+  {
+    id: 41,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "Le marché unique européen repose sur les « quatre libertés » de circulation. Laquelle n'en fait PAS partie ?",
+    propositions: [
+    "Libre circulation des lois fiscales",
+    "Libre circulation des personnes",
+    "Libre circulation des marchandises",
+    "Libre circulation des capitaux"
+    ],
+    reponse: 0
+  },
+  {
+    id: 42,
+    matiere: "Économie",
+    theme: "Régulation de l'économie",
+    question: "Le PIB par habitant est utilisé comme indicateur de :",
+    propositions: [
+    "L'efficacité de la politique monétaire",
+    "Le taux de croissance potentiel",
+    "Le niveau de vie moyen d'une population",
+    "La compétitivité d'un pays"
+    ],
+    reponse: 2
+  },
+  {
+    id: 43,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "Les ménages affectent leur revenu disponible à :",
+    propositions: [
+    "La consommation et l'investissement direct",
+    "La consommation et l'épargne",
+    "L'impôt sur les sociétés et l'épargne",
+    "L'investissement et les transferts sociaux"
+    ],
+    reponse: 1
+  },
+  {
+    id: 44,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "L'investissement des entreprises est aussi appelé :",
+    propositions: [
+    "Variation des stocks",
+    "Consommation intermédiaire",
+    "Consommation finale",
+    "FBCF (Formation Brute de Capital Fixe)"
+    ],
+    reponse: 3
+  },
+  {
+    id: 45,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "Le pouvoir d'achat d'un revenu évolue en fonction :",
+    propositions: [
+    "Du taux d'épargne des ménages",
+    "Du taux de chômage conjoncturel",
+    "De la différence entre l'évolution du revenu nominal et celle des prix",
+    "Uniquement de la variation du salaire nominal"
+    ],
+    reponse: 2
+  },
+  {
+    id: 46,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "Les inégalités de revenus peuvent être mesurées par :",
+    propositions: [
+    "Le coefficient de Gini",
+    "Le taux de croissance du PIB",
+    "Le taux d'investissement",
+    "Le taux d'inflation"
+    ],
+    reponse: 0
+  },
+  {
+    id: 47,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "La protection sociale en France repose principalement sur :",
+    propositions: [
+    "Le modèle libéral d'assurances privées",
+    "Le financement exclusif par l'État",
+    "Le modèle bismarckien fondé sur les cotisations sociales",
+    "Le modèle beveridgien financé uniquement par l'impôt"
+    ],
+    reponse: 2
+  },
+  {
+    id: 48,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "L'État-providence désigne :",
+    propositions: [
+    "Un État qui assure des fonctions de protection sociale et réduit les inégalités",
+    "Un État dont le budget est toujours équilibré",
+    "Un État qui nationalise les entreprises stratégiques",
+    "Un État qui intervient uniquement dans la défense nationale"
+    ],
+    reponse: 0
+  },
+  {
+    id: 49,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "La cohésion sociale désigne :",
+    propositions: [
+    "L'homogénéité culturelle d'une population",
+    "Le maintien des liens sociaux et la réduction des inégalités dans une société",
+    "L'absence totale de conflits sociaux",
+    "L'intégration économique régionale"
+    ],
+    reponse: 1
+  },
+  {
+    id: 50,
+    matiere: "Économie",
+    theme: "Questions transversales",
+    question: "Les politiques de l'emploi peuvent être « actives » ou « passives ». Une politique passive consiste à :",
+    propositions: [
+    "Former les chômeurs pour favoriser leur retour à l'emploi",
+    "Réduire le temps de travail légal",
+    "Subventionner les entreprises qui embauchent",
+    "Verser des allocations chômage sans exiger de contrepartie"
+    ],
+    reponse: 3
+  },
+  {
+    id: 51,
+    matiere: "Droit",
+    theme: "Règle de droit et sources",
+    question: "La règle de droit se distingue des autres règles sociales car elle est :",
+    propositions: [
+    "Applicable uniquement aux personnes physiques",
+    "Fondée sur la morale religieuse",
+    "Générale, abstraite, obligatoire et sanctionnée par l'État",
+    "Créée exclusivement par le Parlement"
+    ],
+    reponse: 2
+  },
+  {
+    id: 52,
+    matiere: "Droit",
+    theme: "Règle de droit et sources",
+    question: "La hiérarchie des normes place au sommet :",
+    propositions: [
+    "La Constitution",
+    "La loi ordinaire",
+    "Les règlements européens",
+    "Les conventions internationales"
+    ],
+    reponse: 0
+  },
+  {
+    id: 53,
+    matiere: "Droit",
+    theme: "Règle de droit et sources",
+    question: "Un règlement européen est :",
+    propositions: [
+    "Une recommandation non contraignante adressée aux États membres",
+    "Une décision individuelle prise par la Commission européenne",
+    "Un texte qui nécessite une loi nationale pour être applicable",
+    "Un texte directement applicable dans tous les États membres sans transposition"
+    ],
+    reponse: 3
+  },
+  {
+    id: 54,
+    matiere: "Droit",
+    theme: "Règle de droit et sources",
+    question: "La jurisprudence désigne :",
+    propositions: [
+    "Les usages professionnels reconnus par la loi",
+    "L'ensemble des décisions rendues par les juridictions et faisant autorité",
+    "Les actes réglementaires pris par le gouvernement",
+    "L'ensemble des lois votées par le Parlement"
+    ],
+    reponse: 1
+  },
+  {
+    id: 55,
+    matiere: "Droit",
+    theme: "Règle de droit et sources",
+    question: "Le principe de la séparation des pouvoirs implique qu'en France :",
+    propositions: [
+    "Les juges peuvent voter des lois",
+    "Le gouvernement contrôle les juridictions",
+    "Le pouvoir judiciaire est indépendant du pouvoir exécutif",
+    "Le président de la République cumule les pouvoirs exécutif et législatif"
+    ],
+    reponse: 2
+  },
+  {
+    id: 56,
+    matiere: "Droit",
+    theme: "Règle de droit et sources",
+    question: "La Cour de cassation est :",
+    propositions: [
+    "La juridiction suprême de l'ordre judiciaire",
+    "Une juridiction du premier degré",
+    "La juridiction suprême de l'ordre administratif",
+    "Une juridiction européenne"
+    ],
+    reponse: 0
+  },
+  {
+    id: 57,
+    matiere: "Droit",
+    theme: "Personnes et patrimoine",
+    question: "La personnalité juridique d'une personne physique commence :",
+    propositions: [
+    "Dès la conception, dans tous les cas",
+    "À l'immatriculation au registre d'état civil",
+    "À la naissance, sous réserve de naître vivant et viable",
+    "À la majorité (18 ans)"
+    ],
+    reponse: 2
+  },
+  {
+    id: 58,
+    matiere: "Droit",
+    theme: "Personnes et patrimoine",
+    question: "La capacité juridique désigne :",
+    propositions: [
+    "La faculté de signer un acte notarié",
+    "L'aptitude à être titulaire de droits et à les exercer",
+    "L'aptitude à exercer un métier juridique",
+    "Le droit à un procès équitable"
+    ],
+    reponse: 1
+  },
+  {
+    id: 59,
+    matiere: "Droit",
+    theme: "Personnes et patrimoine",
+    question: "Une personne morale :",
+    propositions: [
+    "N'a pas de patrimoine propre",
+    "Ne peut pas ester en justice",
+    "Est systématiquement représentée par un notaire",
+    "Acquiert la personnalité juridique dès son immatriculation au RCS"
+    ],
+    reponse: 3
+  },
+  {
+    id: 60,
+    matiere: "Droit",
+    theme: "Personnes et patrimoine",
+    question: "Le patrimoine d'une personne comprend :",
+    propositions: [
+    "L'ensemble de ses droits et obligations ayant une valeur pécuniaire",
+    "Ses biens mobiliers et ses diplômes",
+    "Uniquement ses actifs financiers",
+    "Uniquement ses biens immobiliers"
+    ],
+    reponse: 0
+  },
+  {
+    id: 61,
+    matiere: "Droit",
+    theme: "Personnes et patrimoine",
+    question: "Un mineur non émancipé est :",
+    propositions: [
+    "Capable d'accomplir seul les actes les plus graves",
+    "Frappé d'une incapacité d'exercice : ses actes sont accomplis par son représentant légal",
+    "Capable de tous les actes de la vie civile avec l'accord d'un juge",
+    "Totalement privé de droits"
+    ],
+    reponse: 1
+  },
+  {
+    id: 62,
+    matiere: "Droit",
+    theme: "Personnes et patrimoine",
+    question: "La domiciliation d'une personne physique désigne :",
+    propositions: [
+    "L'adresse de sa résidence secondaire",
+    "Son adresse professionnelle déclarée",
+    "Le lieu de sa naissance",
+    "Le lieu de son principal établissement, centre de ses intérêts"
+    ],
+    reponse: 3
+  },
+  {
+    id: 63,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "Un contrat est valablement formé lorsqu'il réunit notamment :",
+    propositions: [
+    "Un écrit signé devant notaire",
+    "L'accord d'un juge et la signature des parties",
+    "Le consentement des parties, leur capacité et un contenu licite et certain",
+    "Uniquement le consentement des parties"
+    ],
+    reponse: 2
+  },
+  {
+    id: 64,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "Le consentement est vicié lorsqu'il résulte :",
+    propositions: [
+    "D'une erreur, d'un dol ou d'une violence",
+    "D'un accord verbal non confirmé",
+    "D'une offre faite par écrit",
+    "D'une négociation prolongée"
+    ],
+    reponse: 0
+  },
+  {
+    id: 65,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "Le dol en droit des contrats désigne :",
+    propositions: [
+    "Une erreur sur la valeur du bien",
+    "Une clause abusive insérée dans le contrat",
+    "Des manœuvres frauduleuses destinées à obtenir le consentement d'une partie",
+    "Un simple oubli d'information"
+    ],
+    reponse: 2
+  },
+  {
+    id: 66,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "Un contrat synallagmatique est un contrat dans lequel :",
+    propositions: [
+    "Le contrat est conclu sous condition suspensive",
+    "Les deux parties ont des obligations réciproques",
+    "L'une des parties agit à titre gratuit",
+    "Une seule partie est obligée"
+    ],
+    reponse: 1
+  },
+  {
+    id: 67,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "La force obligatoire du contrat signifie que :",
+    propositions: [
+    "Le juge peut toujours réviser le contrat à la demande d'une partie",
+    "Le contrat est opposable aux tiers sans condition",
+    "Le contrat peut être modifié unilatéralement par l'une des parties",
+    "Le contrat s'impose aux parties comme la loi"
+    ],
+    reponse: 3
+  },
+  {
+    id: 68,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "L'effet relatif du contrat signifie que :",
+    propositions: [
+    "Le contrat ne produit d'effets qu'entre les parties contractantes",
+    "Le contrat produit des effets limités dans le temps",
+    "Le contrat est opposable à tous",
+    "Le contrat peut être annulé relativement facilement"
+    ],
+    reponse: 0
+  },
+  {
+    id: 69,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "La nullité relative d'un contrat peut être demandée par :",
+    propositions: [
+    "L'une ou l'autre des parties indifféremment",
+    "Uniquement la partie que la loi entend protéger",
+    "Le procureur de la République uniquement",
+    "N'importe qui, y compris les tiers"
+    ],
+    reponse: 1
+  },
+  {
+    id: 70,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "Une clause pénale dans un contrat a pour objet :",
+    propositions: [
+    "D'exclure toute responsabilité contractuelle",
+    "De garantir le paiement par un tiers",
+    "De prévoir les sanctions pénales en cas d'inexécution",
+    "De fixer forfaitairement les dommages-intérêts dus en cas d'inexécution"
+    ],
+    reponse: 3
+  },
+  {
+    id: 71,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "L'exécution forcée d'un contrat est possible lorsque :",
+    propositions: [
+    "Le débiteur est insolvable",
+    "L'obligation inexécutée est possible et que le créancier le demande",
+    "Le juge l'ordonne systématiquement sans condition",
+    "Les deux parties le décident d'un commun accord"
+    ],
+    reponse: 1
+  },
+  {
+    id: 72,
+    matiere: "Droit",
+    theme: "Acte juridique et contrat",
+    question: "La résolution d'un contrat pour inexécution entraîne :",
+    propositions: [
+    "La suspension temporaire des obligations",
+    "Le versement automatique de dommages-intérêts",
+    "L'anéantissement rétroactif du contrat",
+    "La transformation du contrat en CDI"
+    ],
+    reponse: 2
+  },
+  {
+    id: 73,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "Les conditions de la responsabilité civile délictuelle sont :",
+    propositions: [
+    "Un fait générateur, un préjudice et un lien de causalité",
+    "Une faute, un lien d'emploi et un préjudice",
+    "Une faute intentionnelle et un préjudice corporel",
+    "Un contrat, une faute et un dommage"
+    ],
+    reponse: 0
+  },
+  {
+    id: 74,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "L'article 1240 du Code civil pose le principe de :",
+    propositions: [
+    "La responsabilité du fait des choses",
+    "La responsabilité contractuelle",
+    "La responsabilité du fait personnel pour faute",
+    "La responsabilité du fait d'autrui"
+    ],
+    reponse: 2
+  },
+  {
+    id: 75,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "L'article 1242 alinéa 1 du Code civil établit :",
+    propositions: [
+    "La responsabilité du fabricant pour produits défectueux",
+    "La responsabilité du fait des choses que l'on a sous sa garde",
+    "La responsabilité pour faute prouvée",
+    "La responsabilité du commettant du fait de son préposé uniquement"
+    ],
+    reponse: 1
+  },
+  {
+    id: 76,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "La responsabilité du fait d'autrui (art. 1242 al. 4) engage notamment :",
+    propositions: [
+    "L'employé du fait de son employeur",
+    "L'État du fait de ses fonctionnaires",
+    "Le vendeur du fait de l'acheteur",
+    "Les parents du fait de leurs enfants mineurs habitant avec eux"
+    ],
+    reponse: 3
+  },
+  {
+    id: 77,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "En matière de responsabilité contractuelle, le débiteur est en principe exonéré en cas de :",
+    propositions: [
+    "Difficultés économiques imprévues",
+    "Force majeure (événement imprévisible, irrésistible et extérieur)",
+    "Accord amiable non formalisé",
+    "Mauvaise exécution involontaire"
+    ],
+    reponse: 1
+  },
+  {
+    id: 78,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "La responsabilité pénale se distingue de la responsabilité civile car elle vise à :",
+    propositions: [
+    "Indemniser la victime",
+    "Réparer un préjudice patrimonial",
+    "Résoudre un litige contractuel",
+    "Sanctionner l'auteur d'une infraction au nom de la société"
+    ],
+    reponse: 3
+  },
+  {
+    id: 79,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "Le préjudice indemnisable doit être :",
+    propositions: [
+    "Constaté par un huissier de justice",
+    "Grave et irréversible",
+    "Certain, direct et personnel",
+    "Uniquement corporel et intentionnel"
+    ],
+    reponse: 2
+  },
+  {
+    id: 80,
+    matiere: "Droit",
+    theme: "Responsabilité civile",
+    question: "La faute de la victime peut avoir pour effet :",
+    propositions: [
+    "D'exonérer totalement ou partiellement le responsable",
+    "De transformer la responsabilité délictuelle en responsabilité pénale",
+    "D'aggraver la responsabilité de l'auteur",
+    "De supprimer le droit à indemnisation pour tous les préjudices"
+    ],
+    reponse: 0
+  },
+  {
+    id: 81,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "Le contrat de travail à durée indéterminée (CDI) est :",
+    propositions: [
+    "Obligatoirement rédigé par écrit",
+    "La forme normale et générale de la relation de travail",
+    "Un contrat exceptionnel réservé aux cadres",
+    "Automatiquement renouvelable tous les ans"
+    ],
+    reponse: 1
+  },
+  {
+    id: 82,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "Les éléments caractéristiques du contrat de travail sont :",
+    propositions: [
+    "Un écrit, un salaire et une période d'essai",
+    "Un salaire, une durée et un lieu de travail fixes",
+    "Une prestation de travail, une rémunération et un lien de subordination juridique",
+    "Une rémunération, des congés payés et une mutuelle"
+    ],
+    reponse: 2
+  },
+  {
+    id: 83,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "Le contrat de travail à durée déterminée (CDD) :",
+    propositions: [
+    "Se transforme automatiquement en CDI après 3 mois",
+    "Peut être rompu à tout moment par l'employeur sans indemnité",
+    "Peut être conclu librement pour tout motif",
+    "Ne peut être conclu que dans des cas limitativement prévus par la loi"
+    ],
+    reponse: 3
+  },
+  {
+    id: 84,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "Le licenciement pour motif personnel suppose :",
+    propositions: [
+    "Une cause réelle et sérieuse liée à la personne du salarié",
+    "L'accord du salarié ou de l'inspection du travail",
+    "Une faute grave ou lourde obligatoirement",
+    "Une cause économique sérieuse"
+    ],
+    reponse: 0
+  },
+  {
+    id: 85,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "La faute grave en droit du travail prive le salarié :",
+    propositions: [
+    "De l'indemnité compensatrice de congés payés",
+    "De tous ses droits, y compris les allocations chômage",
+    "Uniquement de l'indemnité de préavis",
+    "De l'indemnité de licenciement et du préavis"
+    ],
+    reponse: 3
+  },
+  {
+    id: 86,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "Le Conseil de prud'hommes est compétent pour :",
+    propositions: [
+    "Les litiges des fonctionnaires avec leur administration",
+    "Les litiges individuels nés du contrat de travail de droit privé",
+    "Les conflits collectifs entre syndicats et patronat",
+    "Les litiges entre employeurs et organismes sociaux"
+    ],
+    reponse: 1
+  },
+  {
+    id: 87,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "La convention collective est un accord conclu entre :",
+    propositions: [
+    "Deux entreprises concurrentes sur leurs pratiques salariales",
+    "Le gouvernement et les partenaires sociaux",
+    "Les organisations d'employeurs et les syndicats de salariés représentatifs",
+    "L'État et les organisations syndicales de salariés"
+    ],
+    reponse: 2
+  },
+  {
+    id: 88,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "Le droit de grève en France est :",
+    propositions: [
+    "Soumis à l'autorisation préalable de l'inspection du travail",
+    "Réservé aux syndicats représentatifs au niveau national",
+    "Interdit dans les services publics essentiels",
+    "Un droit constitutionnel pouvant s'exercer sous certaines conditions"
+    ],
+    reponse: 3
+  },
+  {
+    id: 89,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "La rupture conventionnelle du contrat de travail :",
+    propositions: [
+    "Est un mode de rupture amiable du CDI homologué par l'autorité administrative",
+    "Ne donne droit à aucune indemnité",
+    "Peut être imposée unilatéralement par l'employeur",
+    "Est une forme de licenciement déguisé"
+    ],
+    reponse: 0
+  },
+  {
+    id: 90,
+    matiere: "Droit",
+    theme: "Droit du travail",
+    question: "La durée légale du travail en France est fixée à :",
+    propositions: [
+    "39 heures par semaine",
+    "32 heures par semaine",
+    "35 heures par semaine",
+    "40 heures par semaine"
+    ],
+    reponse: 2
+  },
+  {
+    id: 91,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "La SARL (Société à Responsabilité Limitée) se caractérise par :",
+    propositions: [
+    "L'obligation d'être cotée en bourse",
+    "Une responsabilité des associés limitée à leurs apports",
+    "Un capital social minimum de 37 000 €",
+    "Une responsabilité illimitée des associés"
+    ],
+    reponse: 1
+  },
+  {
+    id: 92,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "Dans une SA (Société Anonyme), le nombre minimum d'actionnaires est de :",
+    propositions: [
+    "3",
+    "2",
+    "10",
+    "7"
+    ],
+    reponse: 3
+  },
+  {
+    id: 93,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "Les apports en industrie dans une société correspondent à :",
+    propositions: [
+    "Des apports d'immeubles industriels",
+    "Des apports en numéraire provenant d'un industriel",
+    "Des apports de savoir-faire, de travail ou de compétences",
+    "Des apports de machines et d'équipements industriels"
+    ],
+    reponse: 2
+  },
+  {
+    id: 94,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "La SAS (Société par Actions Simplifiée) se distingue notamment par :",
+    propositions: [
+    "Une grande liberté statutaire dans son organisation",
+    "Un capital social minimum de 50 000 €",
+    "L'obligation d'avoir un conseil d'administration",
+    "L'impossibilité de faire appel public à l'épargne"
+    ],
+    reponse: 0
+  },
+  {
+    id: 95,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "La personnalité morale d'une société est acquise :",
+    propositions: [
+    "Lors de la première assemblée générale des associés",
+    "À la date du premier exercice comptable",
+    "À partir de son immatriculation au Registre du Commerce et des Sociétés (RCS)",
+    "Dès la signature des statuts"
+    ],
+    reponse: 2
+  },
+  {
+    id: 96,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "L'affectio societatis désigne :",
+    propositions: [
+    "La clause de non-concurrence entre associés",
+    "La part de bénéfices revenant à chaque associé",
+    "L'objet social de la société",
+    "La volonté commune des associés de collaborer sur un pied d'égalité"
+    ],
+    reponse: 3
+  },
+  {
+    id: 97,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "La responsabilité d'un actionnaire dans une SA est :",
+    propositions: [
+    "Limitée au montant de ses apports",
+    "Engagée uniquement en cas de faute de gestion",
+    "Illimitée et solidaire",
+    "Limitée à la valeur nominale de ses actions au moment de la liquidation"
+    ],
+    reponse: 0
+  },
+  {
+    id: 98,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "Le gérant d'une SARL engage sa responsabilité civile en cas de :",
+    propositions: [
+    "Résultat déficitaire de l'entreprise",
+    "Fautes de gestion commises dans l'exercice de ses fonctions",
+    "Simple perte liée aux risques normaux de l'activité",
+    "Décision de l'assemblée générale qu'il a appliquée"
+    ],
+    reponse: 1
+  },
+  {
+    id: 99,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "La dissolution d'une société entraîne :",
+    propositions: [
+    "Le transfert automatique des dettes aux associés",
+    "La perte immédiate de la personnalité morale",
+    "La cessation immédiate de toute activité",
+    "L'ouverture d'une phase de liquidation pour réaliser l'actif et apurer le passif"
+    ],
+    reponse: 3
+  },
+  {
+    id: 100,
+    matiere: "Droit",
+    theme: "Sociétés commerciales",
+    question: "Le bénéfice distribuable aux associés est voté par :",
+    propositions: [
+    "Les commissaires aux comptes",
+    "L'assemblée générale ordinaire des associés",
+    "Le conseil d'administration sans assemblée",
+    "Le gérant ou le directeur général seul"
+    ],
+    reponse: 1
+  },
+];
+// ── État global ──
+let studentName = '';
+let currentIndex = 0;
+let answered = [];   // {index, chosen, correct} — null si abstention
+let score = 0;
+let correctionVisible = false;
+
+function startQuiz() {
+  const n = document.getElementById('student-name').value.trim();
+  if (!n) { document.getElementById('student-name').focus(); document.getElementById('student-name').style.borderColor='var(--gold)'; return; }
+  studentName = n;
+  currentIndex = 0;
+  answered = [];
+  score = 0;
+  document.getElementById('screen-intro').style.display = 'none';
+  document.getElementById('screen-question').style.display = 'block';
+  document.getElementById('header-progress').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = QUESTIONS[currentIndex];
+  const letters = ['A','B','C','D'];
+  const total = QUESTIONS.length;
+
+  // Header
+  document.getElementById('q-number').textContent = `Question ${currentIndex+1} / ${total}`;
+  const matiereEl = document.getElementById('q-matiere');
+  matiereEl.textContent = q.matiere;
+  matiereEl.className = 'q-matiere ' + (q.matiere === 'Économie' ? 'eco' : 'droit');
+  document.getElementById('q-theme').textContent = q.theme;
+  document.getElementById('question-text').textContent = q.question;
+
+  // Progress
+  document.getElementById('progress-bar').style.width = ((currentIndex / total) * 100) + '%';
+  document.getElementById('hp-num').textContent = `${currentIndex+1}/${total}`;
+  document.getElementById('hp-score').textContent = `Score : ${formatScore(score)}`;
+
+  // Propositions
+  const container = document.getElementById('propositions');
+  container.innerHTML = '';
+  q.propositions.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'prop-btn';
+    btn.innerHTML = `<span class="prop-letter">${letters[i]}</span><span>${escHtml(p)}</span>`;
+    btn.onclick = () => chooseAnswer(i);
+    container.appendChild(btn);
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+
+  // Bouton suivant
+  const btnNext = document.getElementById('btn-next');
+  btnNext.classList.remove('visible');
+  btnNext.textContent = (currentIndex === total - 1) ? 'Voir les résultats' : 'Suivant →';
+
+  // Scores
+  document.getElementById('score-current').textContent = formatScore(score);
+  document.getElementById('answered-count').textContent = answered.length;
+}
+
+function chooseAnswer(chosen) {
+  const q = QUESTIONS[currentIndex];
+  const buttons = document.querySelectorAll('.prop-btn');
+  const letters = ['A','B','C','D'];
+  const isCorrect = (chosen === q.reponse);
+
+  // Désactiver tous les boutons
+  buttons.forEach(b => b.disabled = true);
+
+  // Colorer
+  buttons[q.reponse].classList.add('correct');
+  if (!isCorrect) buttons[chosen].classList.add('wrong');
+
+  // Barème
+  const pts = isCorrect ? 0.5 : -0.25;
+  score = Math.max(0, score + pts);
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  if (isCorrect) {
+    fb.className = 'feedback show ok';
+    fb.innerHTML = `<strong>✓ Bonne réponse.</strong> +0,5 point.`;
+  } else {
+    fb.className = 'feedback show ko';
+    fb.innerHTML = `<strong>✗ Mauvaise réponse.</strong> −0,25 point. La bonne réponse était : <strong>${letters[q.reponse]}. ${escHtml(q.propositions[q.reponse])}</strong>`;
+  }
+
+  answered.push({ index: currentIndex, chosen, correct: isCorrect });
+
+  document.getElementById('score-current').textContent = formatScore(score);
+  document.getElementById('answered-count').textContent = answered.length;
+  document.getElementById('hp-score').textContent = `Score : ${formatScore(score)}`;
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= QUESTIONS.length) {
+    showResults();
+  } else {
+    showQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('screen-question').style.display = 'none';
+  document.getElementById('screen-results').style.display = 'block';
+
+  // Calcul note sur 20
+  // Max possible = 50 * 0.5 = 25 pts par matière = 50 pts total
+  // Note sur 20 = (score_brut / 50) * 20
+  const note = Math.max(0, Math.min(20, (score / 50) * 20));
+  const noteDisplay = note.toFixed(1).replace('.', ',');
+
+  // Stats globales
+  const correct = answered.filter(a => a.correct).length;
+  const wrong = answered.filter(a => !a.correct).length;
+  const abs = QUESTIONS.length - answered.length;
+
+  // Par matière
+  const ecoAnswers = answered.filter(a => QUESTIONS[a.index].matiere === 'Économie');
+  const droitAnswers = answered.filter(a => QUESTIONS[a.index].matiere === 'Droit');
+  const ecoCorrect = ecoAnswers.filter(a => a.correct).length;
+  const droitCorrect = droitAnswers.filter(a => a.correct).length;
+  const ecoScore = ecoCorrect * 0.5 - ecoAnswers.filter(a => !a.correct).length * 0.25;
+  const droitScore = droitCorrect * 0.5 - droitAnswers.filter(a => !a.correct).length * 0.25;
+  const ecoNote = Math.max(0, Math.min(10, (Math.max(0,ecoScore) / 25) * 10));
+  const droitNote = Math.max(0, Math.min(10, (Math.max(0,droitScore) / 25) * 10));
+
+  document.getElementById('results-name').textContent = studentName;
+  document.getElementById('results-note').textContent = noteDisplay + ' / 20';
+  document.getElementById('results-detail').textContent = `${correct} bonne(s) · ${wrong} mauvaise(s) · ${abs} abstention(s)`;
+
+  document.getElementById('eco-score').textContent = ecoNote.toFixed(1).replace('.',',') + ' / 10';
+  document.getElementById('eco-detail').textContent = `${ecoCorrect} bonnes / ${ecoAnswers.length} répondues`;
+  document.getElementById('droit-score').textContent = droitNote.toFixed(1).replace('.',',') + ' / 10';
+  document.getElementById('droit-detail').textContent = `${droitCorrect} bonnes / ${droitAnswers.length} répondues`;
+
+  // Mention
+  let mention, cls;
+  if (note >= 17) { mention = 'Très bien'; cls = 'mention-A'; }
+  else if (note >= 14) { mention = 'Bien'; cls = 'mention-B'; }
+  else if (note >= 11) { mention = 'Assez bien'; cls = 'mention-C'; }
+  else { mention = 'À retravailler'; cls = 'mention-D'; }
+
+  document.getElementById('results-mention').innerHTML = `<span class="mention ${cls}">${mention}</span>`;
+
+  // Correction détaillée
+  buildCorrection();
+}
+
+function buildCorrection() {
+  const letters = ['A','B','C','D'];
+  const list = document.getElementById('correction-list');
+  list.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const a = answered.find(x => x.index === i);
+    const div = document.createElement('div');
+    div.className = 'corr-item';
+    let icon, bonneClass;
+    if (!a) { icon = '○'; bonneClass = ''; }
+    else if (a.correct) { icon = '✓'; bonneClass = 'correct'; }
+    else { icon = '✗'; bonneClass = 'wrong'; }
+
+    const chosenTxt = a ? `Votre réponse : ${letters[a.chosen]}` : 'Non répondue';
+    const bonneTxt = `Bonne réponse : ${letters[q.reponse]}. ${q.propositions[q.reponse]}`;
+
+    div.innerHTML = `
+      <span class="corr-icon">${icon}</span>
+      <div>
+        <div class="corr-q"><strong>Q${q.id}. ${q.matiere} — ${q.theme}</strong></div>
+        <div>${escHtml(q.question)}</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:0.15rem">${chosenTxt}</div>
+        ${!a || !a.correct ? `<div class="corr-bonne">→ ${escHtml(bonneTxt)}</div>` : ''}
+      </div>`;
+    list.appendChild(div);
+  });
+}
+
+function toggleCorrection() {
+  correctionVisible = !correctionVisible;
+  const list = document.getElementById('correction-list');
+  const btn = document.querySelector('.correction-toggle');
+  list.style.display = correctionVisible ? 'block' : 'none';
+  btn.textContent = correctionVisible ? '▲ Masquer la correction' : '▼ Voir la correction détaillée';
+}
+
+function sendScore() {
+  const note = Math.max(0, Math.min(20, (score / 50) * 20)).toFixed(1).replace('.',',');
+  const correct = answered.filter(a => a.correct).length;
+  const wrong = answered.filter(a => !a.correct).length;
+  const abs = QUESTIONS.length - answered.length;
+
+  const ecoAnswers = answered.filter(a => QUESTIONS[a.index].matiere === 'Économie');
+  const droitAnswers = answered.filter(a => QUESTIONS[a.index].matiere === 'Droit');
+  const ecoCorrect = ecoAnswers.filter(a => a.correct).length;
+  const droitCorrect = droitAnswers.filter(a => a.correct).length;
+  const ecoScore = ecoCorrect * 0.5 - ecoAnswers.filter(a => !a.correct).length * 0.25;
+  const droitScore = droitCorrect * 0.5 - droitAnswers.filter(a => !a.correct).length * 0.25;
+  const ecoNote = Math.max(0, Math.min(10, (Math.max(0,ecoScore) / 25) * 10)).toFixed(1).replace('.',',');
+  const droitNote = Math.max(0, Math.min(10, (Math.max(0,droitScore) / 25) * 10)).toFixed(1).replace('.',',');
+
+  const subject = `QCM TSTMG Éco-Droit — ${studentName}`;
+  const body = `━━━━━━━━━━━━━━━━━━━━━━━━
+QCM TERMINALE STMG — Économie & Droit
+100 questions
+━━━━━━━━━━━━━━━━━━━━━━━━
+Élève : ${studentName}
+━━━━━━━━━━━━━━━━━━━━━━━━
+NOTE GLOBALE : ${note} / 20
+
+Économie : ${ecoNote} / 10
+Droit     : ${droitNote} / 10
+━━━━━━━━━━━━━━━━━━━━━━━━
+Bonnes réponses  : ${correct} / 100
+Mauvaises réponses : ${wrong}
+Abstentions       : ${abs}
+━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+  window.location.href = 'mailto:c.chaudronnier@ejda.fr?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
+function restartQuiz() {
+  currentIndex = 0;
+  answered = [];
+  score = 0;
+  correctionVisible = false;
+  document.getElementById('screen-results').style.display = 'none';
+  document.getElementById('screen-intro').style.display = 'block';
+  document.getElementById('header-progress').style.display = 'none';
+  document.getElementById('student-name').value = '';
+}
+
+function formatScore(s) {
+  return s.toFixed(2).replace('.',',').replace(',00','').replace(/,(\d)0$/,',$1');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
